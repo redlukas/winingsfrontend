@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {addDeuce, getPlayers, togglePlayStatus} from "./players/playerService";
+import {addDeuce, deletePlayer, getPlayers, togglePlayStatus} from "./players/playerService";
 import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
 
@@ -71,6 +71,11 @@ class Players extends Component {
         this.setState({gameIsRunning: false, showEndgameAlert: false})
     }
 
+    async deletePlayer(id){
+        await deletePlayer(id);
+        await this.updatePlayers();
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -140,7 +145,12 @@ class Players extends Component {
                                 </button>
                             </td>}
                             {this.state.gameIsRunning ? "" : <td>
-                                <button className={"btn btn-warning btn-sm float-end"}>x</button>
+                                <button
+                                    className={"btn btn-warning btn-sm float-end"}
+                                    onClick={()=>this.deletePlayer(player._id)}
+                                >
+                                    x
+                                </button>
                             </td>}
 
                         </tr>
@@ -173,7 +183,7 @@ class Players extends Component {
                             <button
                                 onClick={() => console.log("set payout rate")}
                                 className={"btn btn-sm btn-primary"}
-                                disabled={this.state.gameIsRunning}>
+                                disabled={this.state.gameIsRunning || this.state.players.length<=1}>
                                 Set Payout Rate
                             </button>
                         </Col>
@@ -181,7 +191,7 @@ class Players extends Component {
                             <button
                                 onClick={() => this.startGame()}
                                 className={"btn btn-sm btn-primary"}
-                                disabled={this.state.gameIsRunning}>
+                                disabled={this.state.gameIsRunning || this.state.players.length<=1}>
                                 Start Game
                             </button>
                         </Col>

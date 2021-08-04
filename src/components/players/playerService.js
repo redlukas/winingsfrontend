@@ -11,8 +11,8 @@ export function getPlayers() {
     return http.get(apiEndpoint);
 }
 
-export function getPlayer(movieId) {
-    return http.get(playerUrl(movieId));
+export function getPlayer(playerID) {
+    return http.get(playerUrl(playerID));
 }
 
 export function createPlayer(playerName) {
@@ -25,4 +25,8 @@ export function togglePlayStatus(playerId) {
 
 export function addDeuce(playerId){
     return http.get(apiEndpoint + "/deuce/" + playerId)
+}
+
+export function deletePlayer(playerID){
+    return http.delete(playerUrl(playerID))
 }
