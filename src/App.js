@@ -1,11 +1,24 @@
-import './App.css';
 import React from "react";
-import PlayersTable from "./components/playersTable";
+import Players from "./components/players";
+import {toast, ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
+toast.configure()
 function App() {
     return (
     <React.Fragment>
-      <PlayersTable/>
+      <Players/>
+        <ToastContainer
+            position="top-right"
+            autoClose={2500}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+        />
     </React.Fragment>
   );
 }
