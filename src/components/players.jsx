@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {addDeuce, deletePlayer, getPlayers, togglePlayStatus} from "./players/playerService";
 import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
+import {endGame, getGameStatus, resetGame, startGame} from "./players/gameService";
 
 
 class Players extends Component {
@@ -20,10 +21,10 @@ class Players extends Component {
 
 
     componentDidMount() {
-        this.updatePlayers();
+        this.syncStateWithServer();
     }
 
-    async updatePlayers() {
+    async syncStateWithServer() {
         const {data} = await getPlayers();
         await data.sort((a, b) => a.rank - b.rank)
         await this.setState({lastOut: 0})
@@ -32,7 +33,13 @@ class Players extends Component {
                 await this.setState({lastOut: pla.rank});
             }
         }
-        await this.setState({players: data});
+        const gameState = await getGameStatus();
+        await this.setState(
+            {
+                players: data,
+                gameIsRunning: gameState.data.isRunning
+            }
+        );
     }
 
     async handleDeuce(id) {
@@ -41,7 +48,7 @@ class Players extends Component {
         } catch (e) {
             toast.error("Eliminated Players cannot win with 2-7")
         }
-        await this.updatePlayers();
+        await this.syncStateWithServer();
     }
 
     async handleElimination(id) {
@@ -50,7 +57,7 @@ class Players extends Component {
         } catch (e) {
             toast.error("You can only deeliminate the Player that was last eliminated!");
         }
-        await this.updatePlayers();
+        await this.syncStateWithServer();
     }
 
     async handlePlayerSubmit() {
@@ -65,15 +72,19 @@ class Players extends Component {
 
     async startGame() {
         this.setState({gameIsRunning: true})
+        await startGame();
     }
 
     async endGame() {
         this.setState({gameIsRunning: false, showEndgameAlert: false})
+        await endGame();
+        await resetGame();
+        await this.syncStateWithServer()
     }
 
-    async deletePlayer(id){
+    async deletePlayer(id) {
         await deletePlayer(id);
-        await this.updatePlayers();
+        await this.syncStateWithServer();
     }
 
     render() {
@@ -130,7 +141,7 @@ class Players extends Component {
                                     <td>
                                         <button
                                             onClick={() => this.handleDeuce(player._id)}
-                                            disabled={!player.isStillPlaying||this.state.lastOut===2}
+                                            disabled={!player.isStillPlaying || this.state.lastOut === 2}
                                             className={"btn btn-sm btn-outline-info"}>
                                             2-7
                                         </button>
@@ -147,7 +158,7 @@ class Players extends Component {
                             {this.state.gameIsRunning ? "" : <td>
                                 <button
                                     className={"btn btn-warning btn-sm float-end"}
-                                    onClick={()=>this.deletePlayer(player._id)}
+                                    onClick={() => this.deletePlayer(player._id)}
                                 >
                                     x
                                 </button>
@@ -183,7 +194,7 @@ class Players extends Component {
                             <button
                                 onClick={() => console.log("set payout rate")}
                                 className={"btn btn-sm btn-primary"}
-                                disabled={this.state.gameIsRunning || this.state.players.length<=1}>
+                                disabled={this.state.gameIsRunning || this.state.players.length <= 1}>
                                 Set Payout Rate
                             </button>
                         </Col>
@@ -191,7 +202,7 @@ class Players extends Component {
                             <button
                                 onClick={() => this.startGame()}
                                 className={"btn btn-sm btn-primary"}
-                                disabled={this.state.gameIsRunning || this.state.players.length<=1}>
+                                disabled={this.state.gameIsRunning || this.state.players.length <= 1}>
                                 Start Game
                             </button>
                         </Col>
