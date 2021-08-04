@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {addDeuce, getPlayers, togglePlayStatus} from "./players/playerService";
 import {toast} from "react-toastify";
-import Button from 'react-bootstrap/Button';
+
 
 
 class Players extends Component {
@@ -53,7 +53,7 @@ class Players extends Component {
                     <tr>
                         <th>Name</th>
                         <th>Rank</th>
-                        <th>Deuces</th>
+                        <th>2-7</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -67,15 +67,16 @@ class Players extends Component {
                             <td>
                                 <button
                                     onClick={() => this.handleDeuce(player._id)}
-                                    disabled={!player.isStillPlaying}>
-                                    Deuce
+                                    disabled={!player.isStillPlaying}
+                                    className={"btn btn-info btn-sm"}>
+                                    2-7
                                 </button>
                             </td>
                             <td>
                                 <button
                                     onClick={() => this.handleElimination(player._id)}
                                     disabled={!(player.rank === this.state.lastOut) && !player.isStillPlaying}
-                                    className={"btn btn-success"}>
+                                    className={player.isStillPlaying?"btn btn-danger btn-sm":"btn btn-success btn-sm"}>
                                     {player.isStillPlaying ? "Eliminate" : "Uneliminate"}
                                 </button>
                             </td>
