@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {addDeuce, deletePlayer, getPlayers, togglePlayStatus} from "./players/playerService";
+import {addDeuce, createPlayer, deletePlayer, getPlayers, togglePlayStatus} from "./players/playerService";
 import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
 import {endGame, getGameStatus, resetGame, startGame} from "./players/gameService";
@@ -14,9 +14,11 @@ class Players extends Component {
             lastOut: 0,
             players: [],
             gameIsRunning: false,
-            showEndgameAlert: false
+            showEndgameAlert: false,
+            newPlayerName: ""
         }
-        this.playerNameInput = React.createRef();
+        this.handlePlayerFormChange = this.handlePlayerFormChange.bind(this);
+        this.handlePlayerSubmit = this.handlePlayerSubmit.bind(this);
     }
 
 
@@ -63,11 +65,16 @@ class Players extends Component {
     async handlePlayerSubmit() {
         console.log("Handle player submit called");
         try {
-            console.log("Input field:", this.playerNameInput.current)
+            await createPlayer(this.state.newPlayerName);
+            await this.syncStateWithServer();
         } catch (e) {
             console.log(e);
         }
         ;
+    }
+
+    async handlePlayerFormChange(e){
+        this.setState({newPlayerName:e.currentTarget.value})
     }
 
     async startGame() {
@@ -175,10 +182,11 @@ class Players extends Component {
                                 className={"form-group"}>
                                 <input
                                     className="form-control"
+                                    value={this.state.newPlayerName}
                                     id="newPlayerName"
                                     type="text"
-                                    ref={this.playerNameInput}
                                     disabled={this.state.gameIsRunning}
+                                    onChange={this.handlePlayerFormChange}
                                 />
                             </form>
                         </Col>
