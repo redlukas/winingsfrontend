@@ -22,3 +22,11 @@ export function getGameStatus(){
 export function setBet(betAmount){
     return http.post(apiEndpoint + "/bet", {bet:betAmount});
 }
+
+export function setWinning(rank, percentage){
+    return http.post(apiEndpoint + "/winnings", {rank:rank, percentage:percentage})
+}
+
+export function resetWinnings(){
+    return http.post(apiEndpoint + "/winnings/reset")
+}

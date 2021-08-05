@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {addDeuce, createPlayer, deletePlayer, getPlayers, togglePlayStatus} from "./players/playerService";
 import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
-import {endGame, getGameStatus, resetGame, setBet, startGame} from "./players/gameService";
+import {endGame, getGameStatus, resetGame, resetWinnings, setBet, setWinning, startGame} from "./players/gameService";
 
 
 class Players extends Component {
@@ -17,12 +17,14 @@ class Players extends Component {
             showEndgameAlert: false,
             newPlayerName: "",
             showPayoutRateScreen: true,
-            bet: 5
+            bet: 5,
+            ranks: {}
         }
         this.handlePlayerFormChange = this.handlePlayerFormChange.bind(this);
         this.handlePlayerSubmit = this.handlePlayerSubmit.bind(this);
         this.handleBetChange = this.handleBetChange.bind(this);
         this.handleWinningsSave = this.handleWinningsSave.bind(this);
+        this.handleWinningsChange = this.handleWinningsChange.bind(this);
     }
 
 
@@ -78,12 +80,31 @@ class Players extends Component {
         ;
     }
 
+    async handleGoToWinnings(){
+        await resetWinnings();
+        const players = this.state.players;
+        for(let i = 0; i<players.length;i++){
+            let allRanks = this.state.ranks;
+            Object.defineProperty(allRanks, `rank${i+1}`, {value:0})
+            this.setState({ranks:allRanks})
+        }
+        this.setState({showPayoutRateScreen:true})
+    }
+
     async handlePlayerFormChange(e) {
         this.setState({newPlayerName: e.currentTarget.value})
     }
 
     async handleBetChange(e){
         this.setState({bet:e.currentTarget.value})
+    }
+
+    async handleWinningsChange(e){
+        //console.log("got WinningsChange for", e.currentTarget.name);
+        const ranks = {...this.state.ranks};
+        ranks[e.currentTarget.name]=e.currentTarget.value
+        this.setState({ranks})
+        //console.log("state is now:",this.state.ranks);
     }
 
     async startGame() {
@@ -95,6 +116,7 @@ class Players extends Component {
         this.setState({gameIsRunning: false, showEndgameAlert: false})
         await endGame();
         await resetGame();
+        await resetWinnings();
         await this.syncStateWithServer()
     }
 
@@ -104,9 +126,24 @@ class Players extends Component {
     }
 
     async handleWinningsSave(){
+        const winnings = this.state.ranks;
+        for(let win of Object.entries(winnings)){
+            await setWinning(win[0].slice(-1), win[1]);
+        }
         await setBet(this.state.bet);
         await this.syncStateWithServer();
         this.setState({showPayoutRateScreen:false});
+    }
+
+    findPlayerPositionInPlayersArray(id){
+        const players = this.state.players;
+        for(let i=0;i<players.length;i++){
+            if(players[i]._id===id){
+                return i+1;
+            }
+        }
+        return -1;
+
     }
 
     render() {
@@ -218,7 +255,7 @@ class Players extends Component {
                             </Col>
                             <Col md="auto">
                                 <button
-                                    onClick={()=>this.setState({showPayoutRateScreen:true})}
+                                    onClick={()=>this.handleGoToWinnings()}
                                     className={"btn btn-sm btn-primary"}
                                     disabled={this.state.gameIsRunning || this.state.players.length <= 1}>
                                     Set and Payout Rate and Bet
@@ -257,11 +294,11 @@ class Players extends Component {
                                 <form
                                     className={"form-group m-2"}>
                                     <input
-                                        key={"Bet"}
+                                        key="Bet"
                                         className="form-control m-2"
                                         value={this.state.bet}
-                                        id="newPlayerName"
-                                        type="text"
+                                        id="bet"
+                                        type="number"
                                         onChange={this.handleBetChange}
                                     />
                                 </form>
@@ -273,19 +310,19 @@ class Players extends Component {
                                 <Col
                                     className={"text-end p-3"}
                                 >
-                                    Rang x
+                                    {this.findPlayerPositionInPlayersArray(player._id)}. Place
                                 </Col>
                                 <Col
                                 >
                                     <form
                                         className={"form-group m-2"}>
                                         <input
-                                            key={"bet"}
+                                            key={this.findPlayerPositionInPlayersArray(player._id)}
+                                            name={"rank"+this.findPlayerPositionInPlayersArray(player._id)}
                                             className="form-control m-2"
-                                            value={this.state.bet}
-                                            id="newPlayerName"
-                                            type="text"
-                                            onChange={this.handleBetChange}
+                                            id={this.findPlayerPositionInPlayersArray(player._id)}
+                                            type="number"
+                                            onChange={this.handleWinningsChange}
                                         />
                                     </form>
                                 </Col>
