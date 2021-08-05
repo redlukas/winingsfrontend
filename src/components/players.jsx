@@ -2,7 +2,17 @@ import React, {Component} from "react";
 import {addDeuce, createPlayer, deletePlayer, getPlayers, togglePlayStatus} from "./players/playerService";
 import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
-import {endGame, getGameStatus, resetGame, resetWinnings, setBet, setWinning, startGame} from "./players/gameService";
+import {
+    endGame,
+    getGameStatus,
+    getWinnings,
+    resetGame,
+    resetWinnings,
+    setBet,
+    setWinning,
+    startGame
+} from "./players/gameService";
+import logService from "./players/logService";
 
 
 class Players extends Component {
@@ -41,6 +51,11 @@ class Players extends Component {
                 await this.setState({lastOut: pla.rank});
             }
         }
+        const winningsList = await getWinnings();
+        let myRanks = {};
+        for (let win of winningsList.data){
+            Object.defineProperty(myRanks, `rank${win.rank}`, {value:win.winnningsPercentage})
+        }
         const gameState = await getGameStatus();
         await this.setState(
             {
@@ -49,6 +64,7 @@ class Players extends Component {
                 bet: gameState.data.bet
             }
         );
+        console.log("updated state is: ", this.state.ranks);
     }
 
     async handleDeuce(id) {
@@ -89,6 +105,7 @@ class Players extends Component {
             this.setState({ranks:allRanks})
         }
         this.setState({showPayoutRateScreen:true})
+        console.log("state is", this.state.ranks);
     }
 
     async handlePlayerFormChange(e) {

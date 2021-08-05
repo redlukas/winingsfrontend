@@ -28,5 +28,9 @@ export function setWinning(rank, percentage){
 }
 
 export function resetWinnings(){
-    return http.post(apiEndpoint + "/winnings/reset")
+    return http.get(apiEndpoint + "/winnings/reset")
+}
+
+export function getWinnings(){
+    return http.get(apiEndpoint + "/winnings")
 }
