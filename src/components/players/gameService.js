@@ -18,3 +18,7 @@ export function endGame() {
 export function getGameStatus(){
     return http.get(apiEndpoint+"/state");
 }
+
+export function setBet(betAmount){
+    return http.post(apiEndpoint + "/bet", {bet:betAmount});
+}
