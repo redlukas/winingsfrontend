@@ -107,7 +107,6 @@ class Players extends Component {
             this.setState({ranks:allRanks})
         }
         this.setState({showPayoutRateScreen:true})
-        console.log("state is", this.state.ranks);
     }
 
     async handlePlayerFormChange(e) {
@@ -119,16 +118,32 @@ class Players extends Component {
     }
 
     async handleWinningsChange(e){
-        //console.log("got WinningsChange for", e.currentTarget.name);
         const ranks = {...this.state.ranks};
         ranks[e.currentTarget.name]=e.currentTarget.value
         this.setState({ranks})
-        //console.log("state is now:",this.state.ranks);
     }
 
     async startGame() {
-        this.setState({gameIsRunning: true})
-        await startGame();
+        const win = await this.checkWinningsTotal();
+        if(win) {
+            this.setState({gameIsRunning: true});
+            await startGame();
+        }
+    }
+
+    async checkWinningsTotal(){
+        const {data:winnings} = await getWinnings();
+        const {data:players} = await getPlayers();
+        let total = 0;
+        for(let win of winnings){
+            total+=win.winningsPercentage;
+        }
+        total=total/100;
+        const result = total===players.length
+        if(!result){
+            toast.error("Winnings do not match with number of players!")
+        }
+        return result
     }
 
     async endGame() {
@@ -145,13 +160,17 @@ class Players extends Component {
     }
 
     async handleWinningsSave(){
+
         const winnings = this.state.ranks;
         for(let win of Object.entries(winnings)){
             await setWinning(win[0].slice(-1), win[1]);
         }
         await setBet(this.state.bet);
+        const winMatch = await this.checkWinningsTotal();
         await this.syncStateWithServer();
-        this.setState({showPayoutRateScreen:false});
+        if(winMatch) {
+            this.setState({showPayoutRateScreen: false});
+        }
     }
 
     findPlayerPositionInPlayersArray(id){
@@ -301,7 +320,7 @@ class Players extends Component {
                                 <button
                                     onClick={() => this.setState({showEndgameAlert: true})}
                                     className={"btn btn-sm btn-primary"}
-                                    disabled={!this.state.gameIsRunning}>
+                                    disabled={!this.state.gameIsRunning || this.state.showEndgameAlert}>
                                     End Game
                                 </button>
                             </Col>
@@ -332,6 +351,15 @@ class Players extends Component {
                                 </form>
                             </Col>
                         </Row>
+                        <Row>
+                            <Col/>
+                            <Col
+                            className={"text-center text-break"}
+                            >
+                                For each Rank, set the percentage of their bet they should win
+                            </Col>
+                        </Row>
+
                         {this.state.players.map(player =>
                             <Row
                             >
