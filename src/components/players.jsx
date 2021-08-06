@@ -12,7 +12,6 @@ import {
     setWinning,
     startGame
 } from "./players/gameService";
-import logService from "./players/logService";
 
 
 class Players extends Component {
@@ -26,7 +25,7 @@ class Players extends Component {
             gameIsRunning: false,
             showEndgameAlert: false,
             newPlayerName: "",
-            showPayoutRateScreen: true,
+            showPayoutRateScreen: false,
             bet: 5,
             ranks: {}
         }
@@ -35,6 +34,7 @@ class Players extends Component {
         this.handleBetChange = this.handleBetChange.bind(this);
         this.handleWinningsSave = this.handleWinningsSave.bind(this);
         this.handleWinningsChange = this.handleWinningsChange.bind(this);
+        this.onKeyValue = this.onKeyValue.bind(this)
     }
 
 
@@ -67,6 +67,7 @@ class Players extends Component {
         console.log("updated state is: ", this.state.ranks);
     }
 
+
     async handleDeuce(id) {
         try {
             await addDeuce(id);
@@ -89,11 +90,12 @@ class Players extends Component {
         console.log("Handle player submit called");
         try {
             await createPlayer(this.state.newPlayerName);
+            this.setState({newPlayerName: ""});
             await this.syncStateWithServer();
         } catch (e) {
+            toast.error("name must only contain alpha-numeric characters")
             console.log(e);
         }
-        ;
     }
 
     async handleGoToWinnings(){
@@ -161,6 +163,12 @@ class Players extends Component {
         }
         return -1;
 
+    }
+    async onKeyValue(event){
+        if(event.key==="Enter"){
+            event.preventDefault();
+            await this.handlePlayerSubmit()
+        }
     }
 
     render() {
@@ -259,11 +267,14 @@ class Players extends Component {
                                         type="text"
                                         disabled={this.state.gameIsRunning}
                                         onChange={this.handlePlayerFormChange}
+                                        onKeyPress={e=>{this.onKeyValue(e)}}
+                                        //onKeyUp={this.onKeyValue}
                                     />
                                 </form>
                             </Col>
                             <Col md="auto">
                                 <button
+                                    type="submit"
                                     onClick={this.handlePlayerSubmit}
                                     className={"btn btn-sm btn-primary"}
                                     disabled={this.state.gameIsRunning}>

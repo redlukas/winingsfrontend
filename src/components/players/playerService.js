@@ -16,7 +16,7 @@ export function getPlayer(playerID) {
 }
 
 export function createPlayer(playerName) {
-    return http.post(apiEndpoint, {name: playerName});
+    return (http.post(apiEndpoint, {name: playerName}));
 }
 
 export function togglePlayStatus(playerId) {
