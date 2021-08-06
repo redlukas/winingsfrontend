@@ -3,7 +3,7 @@ import {addDeuce, createPlayer, deletePlayer, getPlayers, togglePlayStatus} from
 import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
 import {
-    endGame,
+    endGame, getEarnings,
     getGameStatus,
     getWinnings,
     resetGame,
@@ -27,14 +27,21 @@ class Players extends Component {
             newPlayerName: "",
             showPayoutRateScreen: false,
             bet: 5,
-            ranks: {}
+            ranks: {},
+            showWhoGetsWhat: false,
+            showWhoPaysWho: false,
+            showErrorScreen: false,
+            earnings:[]
         }
         this.handlePlayerFormChange = this.handlePlayerFormChange.bind(this);
         this.handlePlayerSubmit = this.handlePlayerSubmit.bind(this);
         this.handleBetChange = this.handleBetChange.bind(this);
         this.handleWinningsSave = this.handleWinningsSave.bind(this);
         this.handleWinningsChange = this.handleWinningsChange.bind(this);
-        this.onKeyValue = this.onKeyValue.bind(this)
+        this.onKeyValue = this.onKeyValue.bind(this);
+        this.handleCalculateEarnings = this.handleCalculateEarnings.bind(this);
+        this.handleEndGame = this.handleEndGame.bind(this);
+        this.handleWhoPaysWho = this.handleWhoPaysWho.bind(this);
     }
 
 
@@ -43,28 +50,38 @@ class Players extends Component {
     }
 
     async syncStateWithServer() {
-        const {data} = await getPlayers();
-        await data.sort((a, b) => a.rank - b.rank)
+        const {data:players} = await getPlayers();
+        await players.sort((a, b) => a.rank - b.rank)
         await this.setState({lastOut: 0})
-        for (let pla of data) {
+        for (let pla of players) {
             if (pla.rank && this.state.lastOut === 0) {
                 await this.setState({lastOut: pla.rank});
             }
         }
-        const winningsList = await getWinnings();
+        const {data:winnings} = await getWinnings();
         let myRanks = {};
-        for (let win of winningsList.data){
-            Object.defineProperty(myRanks, `rank${win.rank}`, {value:win.winnningsPercentage})
+        for (let win of winnings) {
+            Object.defineProperty(myRanks, `rank${win.rank}`, {value: win.winnningsPercentage})
         }
-        const gameState = await getGameStatus();
+        const {data:gameState} = await getGameStatus();
+        if(!gameState.isRunning){
+            let rankAssigned = false;
+            for(let pla of players){
+                if(pla.rank){
+                    rankAssigned=true;
+                }
+            }
+            if(rankAssigned &&!this.state.showWhoPaysWho &&!this.state.showWhoGetsWhat){
+                await this.setState({showErrorScreen:true})
+            }
+        }
         await this.setState(
             {
-                players: data,
-                gameIsRunning: gameState.data.isRunning,
-                bet: gameState.data.bet
+                players: players,
+                gameIsRunning: gameState.isRunning,
+                bet: gameState.bet
             }
         );
-        console.log("updated state is: ", this.state.ranks);
     }
 
 
@@ -87,7 +104,6 @@ class Players extends Component {
     }
 
     async handlePlayerSubmit() {
-        console.log("Handle player submit called");
         try {
             await createPlayer(this.state.newPlayerName);
             this.setState({newPlayerName: ""});
@@ -98,56 +114,56 @@ class Players extends Component {
         }
     }
 
-    async handleGoToWinnings(){
+    async handleGoToWinnings() {
         await resetWinnings();
         const players = this.state.players;
-        for(let i = 0; i<players.length;i++){
+        for (let i = 0; i < players.length; i++) {
             let allRanks = this.state.ranks;
-            Object.defineProperty(allRanks, `rank${i+1}`, {value:0})
-            this.setState({ranks:allRanks})
+            Object.defineProperty(allRanks, `rank${i + 1}`, {value: 0})
+            this.setState({ranks: allRanks})
         }
-        this.setState({showPayoutRateScreen:true})
+        this.setState({showPayoutRateScreen: true})
     }
 
     async handlePlayerFormChange(e) {
         this.setState({newPlayerName: e.currentTarget.value})
     }
 
-    async handleBetChange(e){
-        this.setState({bet:e.currentTarget.value})
+    async handleBetChange(e) {
+        this.setState({bet: e.currentTarget.value})
     }
 
-    async handleWinningsChange(e){
+    async handleWinningsChange(e) {
         const ranks = {...this.state.ranks};
-        ranks[e.currentTarget.name]=e.currentTarget.value
+        ranks[e.currentTarget.name] = e.currentTarget.value
         this.setState({ranks})
     }
 
     async startGame() {
         const win = await this.checkWinningsTotal();
-        if(win) {
+        if (win) {
             this.setState({gameIsRunning: true});
             await startGame();
         }
     }
 
-    async checkWinningsTotal(){
-        const {data:winnings} = await getWinnings();
-        const {data:players} = await getPlayers();
+    async checkWinningsTotal() {
+        const {data: winnings} = await getWinnings();
+        const {data: players} = await getPlayers();
         let total = 0;
-        for(let win of winnings){
-            total+=win.winningsPercentage;
+        for (let win of winnings) {
+            total += win.winningsPercentage;
         }
-        total=total/100;
-        const result = total===players.length
-        if(!result){
+        total = total / 100;
+        const result = total === players.length
+        if (!result) {
             toast.error("Winnings do not match with number of players!")
         }
         return result
     }
 
-    async endGame() {
-        this.setState({gameIsRunning: false, showEndgameAlert: false})
+    async handleEndGame() {
+        this.setState({gameIsRunning: false, showEndgameAlert: false, showWhoGetsWhat: false, showErrorScreen: false})
         await endGame();
         await resetGame();
         await resetWinnings();
@@ -159,42 +175,84 @@ class Players extends Component {
         await this.syncStateWithServer();
     }
 
-    async handleWinningsSave(){
+    async handleWinningsSave() {
 
         const winnings = this.state.ranks;
-        for(let win of Object.entries(winnings)){
+        for (let win of Object.entries(winnings)) {
             await setWinning(win[0].slice(-1), win[1]);
         }
         await setBet(this.state.bet);
         const winMatch = await this.checkWinningsTotal();
         await this.syncStateWithServer();
-        if(winMatch) {
+        if (winMatch) {
             this.setState({showPayoutRateScreen: false});
         }
     }
 
-    findPlayerPositionInPlayersArray(id){
+    async handleCalculateEarnings() {
+        await endGame();
+        const {data: earnings} = await getEarnings();
+        await this.syncStateWithServer()
+        this.setState({showWhoGetsWhat: true, showWhoPaysWho: false, earnings: earnings, showErrorScreen: false})
+
+    }
+
+    async handleWhoPaysWho(){
+        const {data: earnings} = await getEarnings();
+        this.setState({showWhoGetsWhat: false, showWhoPaysWho: true, earnings:earnings})
+
+    }
+
+    findPlayerPositionInPlayersArray(id) {
         const players = this.state.players;
-        for(let i=0;i<players.length;i++){
-            if(players[i]._id===id){
-                return i+1;
+        for (let i = 0; i < players.length; i++) {
+            if (players[i]._id === id) {
+                return i + 1;
             }
         }
         return -1;
 
     }
-    async onKeyValue(event){
-        if(event.key==="Enter"){
+
+    async onKeyValue(event) {
+        if (event.key === "Enter") {
             event.preventDefault();
             await this.handlePlayerSubmit()
         }
+    }
+
+    getPlayerNameByID(id){
+        for (let pla of this.state.players){
+            if(pla._id===id){
+                return pla.name
+            }
+        }
+        return "pot"
+    }
+
+    getTotalWinningsByID(id){
+        for (let pla of this.state.players){
+            if(pla._id===id){
+                console.log( `_id is ${typeof pla._id}, id is ${typeof id}`);
+                let total = 0;
+                for(let item of Object.keys(pla.winnings)){
+                    console.log("item:", item );
+                    total+=pla.winnings[item];
+                }
+                return total;
+            }
+        }
+        return 0;
     }
 
     render() {
         return (
             <React.Fragment>
                 <div
-                    style={{display: this.state.showPayoutRateScreen ? "none" : "block"}}
+                    style={{display: this.state.showPayoutRateScreen
+                        || this.state.showWhoGetsWhat
+                            || this.state.showWhoPaysWho
+                            ||this.state.showErrorScreen? "none" : "block"}}
                 >
                     <Alert show={this.state.showEndgameAlert} variant={"danger"}>
                         <Alert.Heading>Warning</Alert.Heading>
@@ -202,7 +260,7 @@ class Players extends Component {
                             This will delete all player data
                         </p>
                         <div>
-                            <Button onClick={() => this.endGame()} variant="outline-danger">
+                            <Button onClick={() => this.handleEndGame()} variant="outline-danger">
                                 Yes, I want to start a new Game
                             </Button>
                             <Button
@@ -221,7 +279,11 @@ class Players extends Component {
                             {!this.state.gameIsRunning ? "" : <th>2-7</th>}
                             {!this.state.gameIsRunning ? "" : <th/>}
                             {!this.state.gameIsRunning ? "" : <th/>}
-                            {this.state.gameIsRunning ? "" : <th/>}
+                            {this.state.gameIsRunning ? "" :
+                                <th>
+
+                                </th>
+                            }
                         </tr>
                         </thead>
                         <tbody>
@@ -276,6 +338,13 @@ class Players extends Component {
                     </table>
                     <Container>
                         <Row>
+                            <Button
+                                style={{display: this.state.lastOut === 1 ? "block" : "none"}}
+                                className={"btn btn-sm btn-primary m-2"}
+                                onClick={this.handleCalculateEarnings}
+                            >
+                                Calculate Earnings
+                            </Button>
                             <Col>
                                 <form
                                     className={"form-group"}>
@@ -286,7 +355,9 @@ class Players extends Component {
                                         type="text"
                                         disabled={this.state.gameIsRunning}
                                         onChange={this.handlePlayerFormChange}
-                                        onKeyPress={e=>{this.onKeyValue(e)}}
+                                        onKeyPress={e => {
+                                            this.onKeyValue(e)
+                                        }}
                                         //onKeyUp={this.onKeyValue}
                                     />
                                 </form>
@@ -302,7 +373,7 @@ class Players extends Component {
                             </Col>
                             <Col md="auto">
                                 <button
-                                    onClick={()=>this.handleGoToWinnings()}
+                                    onClick={() => this.handleGoToWinnings()}
                                     className={"btn btn-sm btn-primary"}
                                     disabled={this.state.gameIsRunning || this.state.players.length <= 1}>
                                     Set and Payout Rate and Bet
@@ -330,7 +401,7 @@ class Players extends Component {
                 <div
                     style={{display: this.state.showPayoutRateScreen ? "block" : "none"}}
                 >
-                    <Container >
+                    <Container>
                         <Row>
                             <Col
                                 className={"text-end p-3"}
@@ -354,7 +425,7 @@ class Players extends Component {
                         <Row>
                             <Col/>
                             <Col
-                            className={"text-center text-break"}
+                                className={"text-center text-break"}
                             >
                                 For each Rank, set the percentage of their bet they should win
                             </Col>
@@ -374,7 +445,7 @@ class Players extends Component {
                                         className={"form-group m-2"}>
                                         <input
                                             key={this.findPlayerPositionInPlayersArray(player._id)}
-                                            name={"rank"+this.findPlayerPositionInPlayersArray(player._id)}
+                                            name={"rank" + this.findPlayerPositionInPlayersArray(player._id)}
                                             className="form-control m-2"
                                             id={this.findPlayerPositionInPlayersArray(player._id)}
                                             type="number"
@@ -388,10 +459,108 @@ class Players extends Component {
                         <Row>
                             <Col>
                                 <button
-                                onClick={()=>this.handleWinningsSave()}
-                                className={"btn btn-sm btn-primary float-end "}
+                                    onClick={() => this.handleWinningsSave()}
+                                    className={"btn btn-sm btn-primary float-end "}
                                 >
                                     Save
+                                </button>
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+                <div
+                    style={{display: this.state.showWhoGetsWhat ? "block" : "none"}}
+                >
+                    <table className="table">
+                        <thead>
+                        <tr>
+                            <th className={"h1"}>Rank</th>
+                            <th className={"h1"}>Name</th>
+                            <th/>
+                            <th className={"h1"}>Earnings</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {this.state.earnings.map(player=>
+                            <tr >
+                                <td className={"h5"}>{player.rank}</td>
+                                <td className={"h5"}>{player.name}</td>
+                                {Object.keys(player.winnings).map((keyName, i)=>
+                                    <tr style={{display: keyName==player._id ? "none" : "inline grid"}}>
+                                        <td>{this.getPlayerNameByID(keyName)+ ": " + player.winnings[keyName]}</td>
+                                    </tr>
+                                )}
+
+                                <td className={"h5"}>{this.getTotalWinningsByID(player._id)}</td>
+                            </tr>
+                        )}
+                        </tbody>
+                    </table>
+                    <Container>
+                        <Row>
+                            <Col>
+                                <button
+                                    onClick={this.handleWhoPaysWho}
+                                    className={"btn btn-sm btn-primary"}
+                                >
+                                    Show who pays what
+                                </button>
+                            </Col>
+                            <Col>
+                                <button
+                                    onClick={this.handleEndGame}
+                                    className={"btn btn-sm btn-primary"}
+                                    >
+                                    End Game
+                                </button>
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+                <div
+                    style={{display: this.state.showWhoPaysWho ? "block" : "none"}}
+                >
+                    <Container>
+                        <Row>
+                            <Col>
+                                <button
+                                    onClick={this.handleCalculateEarnings}
+                                    className={"btn btn-sm btn-primary"}
+                                >
+                                    Show who gets what
+                                </button>
+                            </Col>
+                            <Col>
+                                <button
+                                    onClick={this.handleEndGame}
+                                    className={"btn btn-sm btn-primary"}
+                                >
+                                    End Game
+                                </button>
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+                <div
+                    style={{display: this.state.showErrorScreen ? "block" : "none"}}
+                >
+                    You seem to have taken a wrong turn. Let me get you back to safety.
+                    <Container>
+                        <Row>
+                            <Col>
+                                <button
+                                    onClick={this.handleCalculateEarnings}
+                                    className={"btn btn-sm btn-primary"}
+                                >
+                                    Show who gets what
+                                </button>
+                            </Col>
+                            <Col>
+                                <button
+                                    onClick={this.handleEndGame}
+                                    className={"btn btn-sm btn-primary"}
+                                >
+                                    End Game
                                 </button>
                             </Col>
                         </Row>

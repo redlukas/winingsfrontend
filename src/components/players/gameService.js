@@ -34,3 +34,7 @@ export function resetWinnings(){
 export function getWinnings(){
     return http.get(apiEndpoint + "/winnings")
 }
+
+export function getEarnings(){
+    return http.get(apiEndpoint + "/earnings")
+}
