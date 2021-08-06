@@ -191,10 +191,13 @@ class Players extends Component {
 
     async handleCalculateEarnings() {
         await endGame();
-        const {data: earnings} = await getEarnings();
         await this.syncStateWithServer()
+        const {data: earnings} = await getEarnings();
+        earnings.sort((a,b)=>{
+            return this.getTotalWinningsByID(b._id)-this.getTotalWinningsByID(a._id)
+        })
+        console.log("earnings after sort: ", earnings);
         this.setState({showWhoGetsWhat: true, showWhoPaysWho: false, earnings: earnings, showErrorScreen: false})
-
     }
 
     async handleWhoPaysWho(){
@@ -233,10 +236,8 @@ class Players extends Component {
     getTotalWinningsByID(id){
         for (let pla of this.state.players){
             if(pla._id===id){
-                console.log( `_id is ${typeof pla._id}, id is ${typeof id}`);
                 let total = 0;
                 for(let item of Object.keys(pla.winnings)){
-                    console.log("item:", item );
                     total+=pla.winnings[item];
                 }
                 return total;
@@ -477,7 +478,7 @@ class Players extends Component {
                             <th className={"h1"}>Rank</th>
                             <th className={"h1"}>Name</th>
                             <th/>
-                            <th className={"h1"}>Earnings</th>
+                            <th className={"h1"}>Total</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -485,12 +486,13 @@ class Players extends Component {
                             <tr >
                                 <td className={"h5"}>{player.rank}</td>
                                 <td className={"h5"}>{player.name}</td>
-                                {Object.keys(player.winnings).map((keyName, i)=>
-                                    <tr style={{display: keyName==player._id ? "none" : "inline grid"}}>
-                                        <td>{this.getPlayerNameByID(keyName)+ ": " + player.winnings[keyName]}</td>
-                                    </tr>
-                                )}
-
+                                <table className="table">
+                                    {Object.keys(player.winnings).map((keyName, i)=>
+                                        <tr style={{display: keyName==player._id ? "none" : "block"}}>
+                                            <td>{"From " + this.getPlayerNameByID(keyName)+ ": " + player.winnings[keyName]}</td>
+                                        </tr>
+                                    )}
+                                </table>
                                 <td className={"h5"}>{this.getTotalWinningsByID(player._id)}</td>
                             </tr>
                         )}
