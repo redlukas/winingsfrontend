@@ -3,7 +3,7 @@ import {addDeuce, createPlayer, deletePlayer, getPlayers, togglePlayStatus} from
 import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
 import {
-    endGame, getEarnings,
+    endGame, getEarnings, getGame,
     getGameStatus,
     getWinnings,
     resetGame,
@@ -44,13 +44,45 @@ class Players extends Component {
         this.handleWhoPaysWho = this.handleWhoPaysWho.bind(this);
     }
 
+    deepEqual(object1, object2) {
+        const keys1 = Object.keys(object1);
+        const keys2 = Object.keys(object2);
 
-    componentDidMount() {
-        this.syncStateWithServer();
+        if (keys1.length !== keys2.length) {
+            return false;
+        }
+
+        for (const key of keys1) {
+            const val1 = object1[key];
+            const val2 = object2[key];
+            const areObjects = this.isObject(val1) && this.isObject(val2);
+            if (
+                (areObjects && !this.deepEqual(val1, val2)) ||
+                (!areObjects && val1 !== val2)
+            ) {
+                console.log(`${key}.${val1} is not equal to ${key}.${val2}`)
+                return false;
+            }
+        }
+        console.log("The the states are equal");
+        return true;
     }
 
-    async syncStateWithServer() {
-        const {data:players} = await getPlayers();
+    isObject(object) {
+        return object != null && typeof object === 'object';
+    }
+
+    componentDidMount() {
+        this.setStateFromMasterJson()
+            .then(()=>console.log("component mounted"))
+    }
+
+    async setStateFromMasterJson(masterJson) {
+        if(!masterJson) {
+            masterJson = await getGame();
+            masterJson = masterJson.data;
+        }
+        const players = masterJson.players;
         await players.sort((a, b) => a.rank - b.rank)
         await this.setState({lastOut: 0})
         for (let pla of players) {
@@ -58,12 +90,12 @@ class Players extends Component {
                 await this.setState({lastOut: pla.rank});
             }
         }
-        const {data:winnings} = await getWinnings();
+        const winnings = masterJson.winnings;
         let myRanks = {};
         for (let win of winnings) {
             Object.defineProperty(myRanks, `rank${win.rank}`, {value: win.winnningsPercentage})
         }
-        const {data:gameState} = await getGameStatus();
+        const gameState = masterJson.game;
         if(!gameState.isRunning){
             let rankAssigned = false;
             for(let pla of players){
@@ -85,29 +117,33 @@ class Players extends Component {
     }
 
 
+
     async handleDeuce(id) {
         try {
-            await addDeuce(id);
+            const result = await addDeuce(id);
+            await this.setStateFromMasterJson(result);
         } catch (e) {
             toast.error("Eliminated Players cannot win with 2-7")
+            await this.setStateFromMasterJson();
         }
-        await this.syncStateWithServer();
+
     }
 
     async handleElimination(id) {
         try {
-            await togglePlayStatus(id);
+            const result = await togglePlayStatus(id);
+            await this.setStateFromMasterJson(result);
         } catch (e) {
             toast.error("You can only deeliminate the Player that was last eliminated!");
+            await this.setStateFromMasterJson();
         }
-        await this.syncStateWithServer();
     }
 
     async handlePlayerSubmit() {
         try {
-            await createPlayer(this.state.newPlayerName);
+            const result = await createPlayer(this.state.newPlayerName);
             this.setState({newPlayerName: ""});
-            await this.syncStateWithServer();
+            await this.setStateFromMasterJson(result);
         } catch (e) {
             toast.error("name must only contain alpha-numeric characters")
             console.log(e);
@@ -166,13 +202,13 @@ class Players extends Component {
         this.setState({gameIsRunning: false, showEndgameAlert: false, showWhoGetsWhat: false, showErrorScreen: false})
         await endGame();
         await resetGame();
-        await resetWinnings();
-        await this.syncStateWithServer()
+        const result = await resetWinnings();
+        await this.setStateFromMasterJson(result);
     }
 
     async deletePlayer(id) {
-        await deletePlayer(id);
-        await this.syncStateWithServer();
+        const result = await deletePlayer(id);
+        await this.setStateFromMasterJson(result);
     }
 
     async handleWinningsSave() {
@@ -181,17 +217,17 @@ class Players extends Component {
         for (let win of Object.entries(winnings)) {
             await setWinning(win[0].slice(-1), win[1]);
         }
-        await setBet(this.state.bet);
+        const result = await setBet(this.state.bet);
         const winMatch = await this.checkWinningsTotal();
-        await this.syncStateWithServer();
+        await this.setStateFromMasterJson(result);
         if (winMatch) {
             this.setState({showPayoutRateScreen: false});
         }
     }
 
     async handleCalculateEarnings() {
-        await endGame();
-        await this.syncStateWithServer()
+        const result = await endGame();
+        await this.setStateFromMasterJson(result);
         const {data: earnings} = await getEarnings();
         earnings.sort((a,b)=>{
             return this.getTotalWinningsByID(b._id)-this.getTotalWinningsByID(a._id)

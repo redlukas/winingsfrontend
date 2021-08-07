@@ -38,3 +38,7 @@ export function getWinnings(){
 export function getEarnings(){
     return http.get(apiEndpoint + "/earnings")
 }
+
+export function getGame(){
+    return http.get(apiEndpoint)
+}
