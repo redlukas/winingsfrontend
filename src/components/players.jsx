@@ -200,16 +200,15 @@ class Players extends Component {
     async handleCalculateEarnings() {
         const result = await endGame();
         await this.setStateFromMasterJson(result);
-        const {data: earnings} = await getEarnings();
+        const {data:{players:earnings}} = await getEarnings();
         earnings.sort((a,b)=>{
             return this.getTotalWinningsByID(b._id)-this.getTotalWinningsByID(a._id)
         })
-        console.log("earnings after sort: ", earnings);
         this.setState({showWhoGetsWhat: true, showWhoPaysWho: false, earnings: earnings, showErrorScreen: false})
     }
 
     async handleWhoPaysWho(){
-        const {data: earnings} = await getEarnings();
+        const {data:{players:earnings}} = await getEarnings();
         this.setState({showWhoGetsWhat: false, showWhoPaysWho: true, earnings:earnings})
 
     }
@@ -496,7 +495,7 @@ class Players extends Component {
                                 <td className={"h5"}>{player.name}</td>
                                 <table className="table">
                                     {Object.keys(player.winnings).map((keyName, i)=>
-                                        <tr style={{display: keyName==player._id ? "none" : "block"}}>
+                                        <tr style={{display: keyName===player._id ? "none" : "block"}}>
                                             <td>{"From " + this.getPlayerNameByID(keyName)+ ": " + player.winnings[keyName]}</td>
                                         </tr>
                                     )}
