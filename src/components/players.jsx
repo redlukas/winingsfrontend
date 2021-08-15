@@ -4,7 +4,6 @@ import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
 import {
     endGame, getEarnings, getGame,
-    getGameStatus,
     getWinnings,
     resetGame,
     resetWinnings,
@@ -44,33 +43,6 @@ class Players extends Component {
         this.handleWhoPaysWho = this.handleWhoPaysWho.bind(this);
     }
 
-    deepEqual(object1, object2) {
-        const keys1 = Object.keys(object1);
-        const keys2 = Object.keys(object2);
-
-        if (keys1.length !== keys2.length) {
-            return false;
-        }
-
-        for (const key of keys1) {
-            const val1 = object1[key];
-            const val2 = object2[key];
-            const areObjects = this.isObject(val1) && this.isObject(val2);
-            if (
-                (areObjects && !this.deepEqual(val1, val2)) ||
-                (!areObjects && val1 !== val2)
-            ) {
-                console.log(`${key}.${val1} is not equal to ${key}.${val2}`)
-                return false;
-            }
-        }
-        console.log("The the states are equal");
-        return true;
-    }
-
-    isObject(object) {
-        return object != null && typeof object === 'object';
-    }
 
     componentDidMount() {
         this.setStateFromMasterJson()
@@ -78,10 +50,10 @@ class Players extends Component {
     }
 
     async setStateFromMasterJson(masterJson) {
-        if(!masterJson) {
+        if(!masterJson || !masterJson.data) {
             masterJson = await getGame();
-            masterJson = masterJson.data;
         }
+        masterJson = masterJson.data;
         const players = masterJson.players;
         await players.sort((a, b) => a.rank - b.rank)
         await this.setState({lastOut: 0})
