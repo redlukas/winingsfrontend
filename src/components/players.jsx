@@ -3,7 +3,7 @@ import {addDeuce, createPlayer, deletePlayer, getPlayers, togglePlayStatus} from
 import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
 import {
-    endGame, getEarnings, getGame,
+    endGame, getEarnings, getEnvironmentVariables, getGame,
     getWinnings,
     resetGame,
     resetWinnings,
@@ -30,7 +30,7 @@ class Players extends Component {
             showWhoGetsWhat: false,
             showWhoPaysWho: false,
             showErrorScreen: false,
-            earnings:[]
+            earnings: []
         }
         this.handlePlayerFormChange = this.handlePlayerFormChange.bind(this);
         this.handlePlayerSubmit = this.handlePlayerSubmit.bind(this);
@@ -46,11 +46,11 @@ class Players extends Component {
 
     componentDidMount() {
         this.setStateFromMasterJson()
-            .then(()=>console.log("component mounted"))
+            .then(() => getEnvironmentVariables())
     }
 
     async setStateFromMasterJson(masterJson) {
-        if(!masterJson || !masterJson.data) {
+        if (!masterJson || !masterJson.data) {
             masterJson = await getGame();
         }
         masterJson = masterJson.data;
@@ -68,26 +68,25 @@ class Players extends Component {
             Object.defineProperty(myRanks, `rank${win.rank}`, {value: win.winnningsPercentage})
         }
         const gameState = masterJson.game;
-        if(!gameState.isRunning){
+        if (!gameState.isRunning) {
             let rankAssigned = false;
-            for(let pla of players){
-                if(pla.rank){
-                    rankAssigned=true;
+            for (let pla of players) {
+                if (pla.rank) {
+                    rankAssigned = true;
                 }
             }
-            if(rankAssigned &&!this.state.showWhoPaysWho &&!this.state.showWhoGetsWhat){
-                await this.setState({showErrorScreen:true})
+            if (rankAssigned && !this.state.showWhoPaysWho && !this.state.showWhoGetsWhat) {
+                await this.setState({showErrorScreen: true})
             }
         }
         await this.setState(
             {
                 players: players,
                 gameIsRunning: gameState.isRunning,
-                bet: gameState.bet?gameState.bet:this.state.bet
+                bet: gameState.bet ? gameState.bet : this.state.bet
             }
         );
     }
-
 
 
     async handleDeuce(id) {
@@ -112,14 +111,10 @@ class Players extends Component {
     }
 
     async handlePlayerSubmit() {
-        try {
-            const result = await createPlayer(this.state.newPlayerName);
-            this.setState({newPlayerName: ""});
-            await this.setStateFromMasterJson(result);
-        } catch (e) {
-            toast.error("name must only contain alpha-numeric characters")
-            console.log(e);
-        }
+        const result = await createPlayer(this.state.newPlayerName);
+        this.setState({newPlayerName: ""});
+        await this.setStateFromMasterJson(result);
+
     }
 
     async handleGoToWinnings() {
@@ -200,16 +195,16 @@ class Players extends Component {
     async handleCalculateEarnings() {
         const result = await endGame();
         await this.setStateFromMasterJson(result);
-        const {data:{players:earnings}} = await getEarnings();
-        earnings.sort((a,b)=>{
-            return this.getTotalWinningsByID(b._id)-this.getTotalWinningsByID(a._id)
+        const {data: {players: earnings}} = await getEarnings();
+        earnings.sort((a, b) => {
+            return this.getTotalWinningsByID(b._id) - this.getTotalWinningsByID(a._id)
         })
         this.setState({showWhoGetsWhat: true, showWhoPaysWho: false, earnings: earnings, showErrorScreen: false})
     }
 
-    async handleWhoPaysWho(){
-        const {data:{players:earnings}} = await getEarnings();
-        this.setState({showWhoGetsWhat: false, showWhoPaysWho: true, earnings:earnings})
+    async handleWhoPaysWho() {
+        const {data: {players: earnings}} = await getEarnings();
+        this.setState({showWhoGetsWhat: false, showWhoPaysWho: true, earnings: earnings})
 
     }
 
@@ -231,21 +226,21 @@ class Players extends Component {
         }
     }
 
-    getPlayerNameByID(id){
-        for (let pla of this.state.players){
-            if(pla._id===id){
+    getPlayerNameByID(id) {
+        for (let pla of this.state.players) {
+            if (pla._id === id) {
                 return pla.name
             }
         }
         return "pot"
     }
 
-    getTotalWinningsByID(id){
-        for (let pla of this.state.players){
-            if(pla._id===id){
+    getTotalWinningsByID(id) {
+        for (let pla of this.state.players) {
+            if (pla._id === id) {
                 let total = 0;
-                for(let item of Object.keys(pla.winnings)){
-                    total+=pla.winnings[item];
+                for (let item of Object.keys(pla.winnings)) {
+                    total += pla.winnings[item];
                 }
                 return total;
             }
@@ -257,10 +252,12 @@ class Players extends Component {
         return (
             <React.Fragment>
                 <div
-                    style={{display: this.state.showPayoutRateScreen
+                    style={{
+                        display: this.state.showPayoutRateScreen
                         || this.state.showWhoGetsWhat
-                            || this.state.showWhoPaysWho
-                            ||this.state.showErrorScreen? "none" : "block"}}
+                        || this.state.showWhoPaysWho
+                        || this.state.showErrorScreen ? "none" : "block"
+                    }}
                 >
                     <Alert show={this.state.showEndgameAlert} variant={"danger"}>
                         <Alert.Heading>Warning</Alert.Heading>
@@ -489,14 +486,14 @@ class Players extends Component {
                         </tr>
                         </thead>
                         <tbody>
-                        {this.state.earnings.map(player=>
-                            <tr >
+                        {this.state.earnings.map(player =>
+                            <tr>
                                 <td className={"h5"}>{player.rank}</td>
                                 <td className={"h5"}>{player.name}</td>
                                 <table className="table">
-                                    {Object.keys(player.winnings).map((keyName, i)=>
-                                        <tr style={{display: keyName===player._id ? "none" : "block"}}>
-                                            <td>{"From " + this.getPlayerNameByID(keyName)+ ": " + player.winnings[keyName]}</td>
+                                    {Object.keys(player.winnings).map((keyName, i) =>
+                                        <tr style={{display: keyName === player._id ? "none" : "block"}}>
+                                            <td>{"From " + this.getPlayerNameByID(keyName) + ": " + player.winnings[keyName]}</td>
                                         </tr>
                                     )}
                                 </table>
@@ -509,17 +506,9 @@ class Players extends Component {
                         <Row>
                             <Col>
                                 <button
-                                    onClick={this.handleWhoPaysWho}
-                                    className={"btn btn-sm btn-primary"}
-                                >
-                                    Show who pays what
-                                </button>
-                            </Col>
-                            <Col>
-                                <button
                                     onClick={this.handleEndGame}
                                     className={"btn btn-sm btn-primary"}
-                                    >
+                                >
                                     End Game
                                 </button>
                             </Col>

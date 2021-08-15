@@ -3,6 +3,9 @@ import { apiUrl } from "../config.json";
 
 const apiEndpoint = apiUrl + "/game";
 
+export function getEnvironmentVariables() {
+    console.log("Environment variables: ", process.env)
+}
 
 export function startGame() {
     return http.get(apiEndpoint+ "/start");
@@ -14,9 +17,6 @@ export function resetGame() {
 
 export function endGame() {
     return http.get(apiEndpoint+ "/end");
-}
-export function getGameStatus(){
-    return http.get(apiEndpoint+"/state");
 }
 
 export function setBet(betAmount){
