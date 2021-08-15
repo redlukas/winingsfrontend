@@ -83,7 +83,7 @@ class Players extends Component {
             {
                 players: players,
                 gameIsRunning: gameState.isRunning,
-                bet: gameState.bet
+                bet: gameState.bet?gameState.bet:this.state.bet
             }
         );
     }
