@@ -240,7 +240,9 @@ class Players extends Component {
             if (pla._id === id) {
                 let total = 0;
                 for (let item of Object.keys(pla.winnings)) {
-                    total += pla.winnings[item];
+                    if(item!=="pot") {
+                        total += pla.winnings[item];
+                    }
                 }
                 return total;
             }
