@@ -499,7 +499,11 @@ class Players extends Component {
                                         </tr>
                                     )}
                                 </table>
-                                <td className={"h5"}>{this.getTotalWinningsByID(player._id)}</td>
+                                <td >
+                                    <text className={"h5"}>{this.getTotalWinningsByID(player._id)} </text>
+                                    <br/>
+                                    Won {player.deuces} time{player.deuces===1?"":"s"} with 2-7
+                                </td>
                             </tr>
                         )}
                         </tbody>
