@@ -7,7 +7,7 @@ import {
     getWinnings,
     resetGame,
     resetWinnings,
-    setBet,
+    setBet, setDeuceEarnings,
     setWinning,
     startGame
 } from "./players/gameService";
@@ -85,7 +85,8 @@ class Players extends Component {
             {
                 players: players,
                 gameIsRunning: gameState.isRunning,
-                bet: gameState.bet ? gameState.bet : this.state.bet
+                bet: gameState.bet ? gameState.bet : this.state.bet,
+                deuceEarnings: gameState.deuceEarnings? gameState.deuceEarnings : this.state.deuceEarnings
             }
         );
     }
@@ -190,6 +191,7 @@ class Players extends Component {
         for (let win of Object.entries(winnings)) {
             await setWinning(win[0].slice(-1), win[1]);
         }
+        await setDeuceEarnings(this.state.deuceEarnings);
         const result = await setBet(this.state.bet);
         const winMatch = await this.checkWinningsTotal();
         await this.setStateFromMasterJson(result);

@@ -42,3 +42,7 @@ export function getEarnings(){
 export function getGame(){
     return http.get(apiEndpoint)
 }
+
+export function setDeuceEarnings(amount){
+    return http.post(apiEndpoint + "/deuceearnings", {amount: amount})
+}
