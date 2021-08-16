@@ -492,13 +492,16 @@ class Players extends Component {
                             <tr>
                                 <td className={"h5"}>{player.rank}</td>
                                 <td className={"h5"}>{player.name}</td>
-                                <table className="table">
-                                    {Object.keys(player.winnings).map((keyName, i) =>
-                                        <tr style={{display: keyName === player._id ? "none" : "block"}}>
-                                            <td>{"From " + this.getPlayerNameByID(keyName) + ": " + player.winnings[keyName]}</td>
-                                        </tr>
-                                    )}
-                                </table>
+                                <td>
+                                    <ul>
+                                        {Object.keys(player.winnings).map(keyName =>
+                                            <li style={{display: player._id === keyName ? "none" : "block"}}>
+                                                {"From "+this.getPlayerNameByID(keyName) + ": " + player.winnings[keyName]}
+                                            </li>
+
+                                        )}
+                                    </ul>
+                                </td>
                                 <td >
                                     <text className={"h5"}>{this.getTotalWinningsByID(player._id)} </text>
                                     <br/>
