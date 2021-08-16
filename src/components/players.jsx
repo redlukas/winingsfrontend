@@ -26,6 +26,7 @@ class Players extends Component {
             newPlayerName: "",
             showPayoutRateScreen: false,
             bet: 5,
+            deuceEarnings: 1,
             ranks: {},
             showWhoGetsWhat: false,
             showWhoPaysWho: false,
@@ -41,12 +42,13 @@ class Players extends Component {
         this.handleCalculateEarnings = this.handleCalculateEarnings.bind(this);
         this.handleEndGame = this.handleEndGame.bind(this);
         this.handleWhoPaysWho = this.handleWhoPaysWho.bind(this);
+        this.handleDeuceEarningChange = this.handleDeuceEarningChange.bind(this);
     }
 
 
     componentDidMount() {
         this.setStateFromMasterJson()
-            .then(() => getEnvironmentVariables())
+            .then(() => console.log("Penis"))
     }
 
     async setStateFromMasterJson(masterJson) {
@@ -134,6 +136,10 @@ class Players extends Component {
 
     async handleBetChange(e) {
         this.setState({bet: e.currentTarget.value})
+    }
+
+    async handleDeuceEarningChange(e) {
+        this.setState({deuceEarnings: e.currentTarget.value})
     }
 
     async handleWinningsChange(e) {
@@ -425,6 +431,26 @@ class Players extends Component {
                                         id="bet"
                                         type="number"
                                         onChange={this.handleBetChange}
+                                    />
+                                </form>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col
+                                className={"text-end p-3"}
+                            >
+                                Earnings from 2-7
+                            </Col>
+                            <Col>
+                                <form
+                                    className={"form-group m-2"}>
+                                    <input
+                                        key="deuceEarning"
+                                        className="form-control m-2"
+                                        value={this.state.deuceEarnings}
+                                        id="deuceEarning"
+                                        type="number"
+                                        onChange={this.handleDeuceEarningChange}
                                     />
                                 </form>
                             </Col>
