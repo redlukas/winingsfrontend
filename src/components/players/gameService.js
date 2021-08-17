@@ -3,7 +3,7 @@ import {apiIP} from "../config.json";
 
 function getApiEndpoint(){
     let ip = apiIP;
-    if(ip==="$IP"){
+    if(ip==="ipgoeshere"){
         ip="127.0.0.1";
     }
     return `http://${ip}:8888/api/game`;
@@ -43,7 +43,6 @@ export function getEarnings(){
 }
 
 export function getGame(){
-    console.log("get game to ", getApiEndpoint());
     return http.get(getApiEndpoint())
 }
 
