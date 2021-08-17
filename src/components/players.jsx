@@ -121,13 +121,6 @@ class Players extends Component {
     }
 
     async handleGoToWinnings() {
-        await resetWinnings();
-        const players = this.state.players;
-        for (let i = 0; i < players.length; i++) {
-            let allRanks = this.state.ranks;
-            Object.defineProperty(allRanks, `rank${i + 1}`, {value: 0})
-            this.setState({ranks: allRanks})
-        }
         this.setState({showPayoutRateScreen: true})
     }
 
@@ -196,8 +189,9 @@ class Players extends Component {
         const winMatch = await this.checkWinningsTotal();
         await this.setStateFromMasterJson(result);
         if (winMatch) {
-            this.setState({showPayoutRateScreen: false});
+            this.setState({showPayoutRateScreen: false, ranks:{}});
         }
+        window.location.reload(); //avert your eyes
     }
 
     async handleCalculateEarnings() {
@@ -228,9 +222,22 @@ class Players extends Component {
     }
 
     async onKeyValue(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            await this.handlePlayerSubmit()
+        if(!this.state.showPayoutRateScreen && !this.state.showErrorScreen && ! this.state.showWhoPaysWho && !this.state.showWhoGetsWhat) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                await this.handlePlayerSubmit()
+            }
+        } else if(this.state.showPayoutRateScreen){
+            if (event.key === "Enter"){
+                event.preventDefault();
+                /*
+                const winMatch = await this.checkWinningsTotal();
+                if(winMatch) {
+                    await this.handleWinningsSave()
+                }
+
+                 */
+            }
         }
     }
 
@@ -272,17 +279,17 @@ class Players extends Component {
                     <Alert show={this.state.showEndgameAlert} variant={"danger"}>
                         <Alert.Heading>Warning</Alert.Heading>
                         <p>
-                            This will delete all player data
+                            This will delete all records of the current game
                         </p>
                         <div>
                             <Button onClick={() => this.handleEndGame()} variant="outline-danger">
-                                Yes, I want to start a new Game
+                                Yes, I want to end the current game
                             </Button>
                             <Button
                                 onClick={() => this.setState({showEndgameAlert: false})}
                                 variant="success"
                                 className={"m-lg-3"}>
-                                Continue current Game
+                                No, continue with current game
                             </Button>
                         </div>
                     </Alert>
@@ -419,6 +426,9 @@ class Players extends Component {
                                         id="bet"
                                         type="number"
                                         onChange={this.handleBetChange}
+                                        onKeyPress={e => {
+                                            this.onKeyValue(e)
+                                        }}
                                     />
                                 </form>
                             </Col>
@@ -439,6 +449,9 @@ class Players extends Component {
                                         id="deuceEarning"
                                         type="number"
                                         onChange={this.handleDeuceEarningChange}
+                                        onKeyPress={e => {
+                                            this.onKeyValue(e)
+                                        }}
                                     />
                                 </form>
                             </Col>
@@ -471,6 +484,9 @@ class Players extends Component {
                                             id={this.findPlayerPositionInPlayersArray(player._id)}
                                             type="number"
                                             onChange={this.handleWinningsChange}
+                                            onKeyPress={e => {
+                                                this.onKeyValue(e)
+                                            }}
                                         />
                                     </form>
                                 </Col>
