@@ -1,13 +1,18 @@
 #!/bin/bash
 
+## install sudo via apt
+## add "mongodb ALL=(root) NOPASSWD: /usr/bin/sh" to /etc/sudoers
+##copy this file to /usr/local/bin/front.sh
+
+
 sleep 6
 
 if [[ -z "${BACKEND_IP}" ]]; then
-  echo IP is undefinied
+  echo BACKEND_IP is undefined
 else
   if grep -q ipgoeshere "/home/winingsfrontend/src/components/config.json"; then
     echo setting the IP to "${BACKEND_IP}"
-    sed -i s/ipgoeshere/"${IP}"/g /home/winingsfrontend/src/components/config.json
+    sed -i s/ipgoeshere/"${BACKEND_IP}"/g /home/winingsfrontend/src/components/config.json
     echo config file overwritten, it is now:
     cat /home/winingsfrontend/src/components/config.json
     cd /home/winingsfrontend

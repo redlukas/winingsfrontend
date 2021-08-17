@@ -290,15 +290,11 @@ class Players extends Component {
                         <thead>
                         <tr>
                             <th>Name</th>
-                            {!this.state.gameIsRunning ? "" : <th>Rank</th>}
-                            {!this.state.gameIsRunning ? "" : <th>2-7</th>}
-                            {!this.state.gameIsRunning ? "" : <th/>}
-                            {!this.state.gameIsRunning ? "" : <th/>}
-                            {this.state.gameIsRunning ? "" :
-                                <th>
-
-                                </th>
-                            }
+                            <th style={{display:this.state.gameIsRunning ?"table-cell":"none"}}>Rank</th>
+                            <th style={{display:this.state.gameIsRunning ?"table-cell":"none"}}>2-7</th>
+                            <th style={{display:this.state.gameIsRunning ?"table-cell":"none"}}/>
+                            <th style={{display:this.state.gameIsRunning ?"table-cell":"none"}}/>
+                            <th style={{display:this.state.gameIsRunning ?"table-cell":"none"}}/>
                         </tr>
                         </thead>
                         <tbody>
@@ -306,46 +302,36 @@ class Players extends Component {
                             <tr key={player._id ? player._id : 0}>
 
                                 <td>{player.name}</td>
-
-                                {
-                                    !this.state.gameIsRunning ? "" :
-                                        <td>
+                                <td style={{display:this.state.gameIsRunning ?"table-cell":"none"}}>
                                             {player.rank ? player.rank : "-"}
-                                        </td>
-                                }
-                                {
-                                    !this.state.gameIsRunning ? "" :
-                                        <td>
+                                </td>
+                                <td style={{display:this.state.gameIsRunning ?"table-cell":"none"}}>
                                             {player.deuces}
-                                        </td>
-                                }
-                                {
-                                    !this.state.gameIsRunning ? "" :
-                                        <td>
-                                            <button
-                                                onClick={() => this.handleDeuce(player._id)}
-                                                disabled={!player.isStillPlaying || this.state.lastOut === 2}
-                                                className={"btn btn-sm btn-outline-info"}>
-                                                2-7
-                                            </button>
-                                        </td>
-                                }
-                                {!this.state.gameIsRunning ? "" : <td>
+                                </td>
+                                <td style={{display:this.state.gameIsRunning ?"table-cell":"none"}}>
+                                    <button
+                                        onClick={() => this.handleDeuce(player._id)}
+                                        disabled={!player.isStillPlaying || this.state.lastOut === 2}
+                                        className={"btn btn-sm btn-outline-info"}>
+                                        2-7
+                                    </button>
+                                </td>
+                                <td style={{display:this.state.gameIsRunning ?"table-cell":"none"}}>
                                     <button
                                         onClick={() => this.handleElimination(player._id)}
                                         disabled={!(player.rank === this.state.lastOut) && !player.isStillPlaying}
                                         className={player.isStillPlaying ? "btn btn-danger btn-sm" : "btn btn-success btn-sm"}>
                                         {player.isStillPlaying ? "Eliminate" : "Uneliminate"}
                                     </button>
-                                </td>}
-                                {this.state.gameIsRunning ? "" : <td>
+                                </td>
+                                <td style={{display:this.state.gameIsRunning ?"none":"table-cell"}}>
                                     <button
                                         className={"btn btn-warning btn-sm float-end"}
                                         onClick={() => this.deletePlayer(player._id)}
                                     >
-                                        x
+                                    x
                                     </button>
-                                </td>}
+                                </td>
 
                             </tr>
                         )}
@@ -531,7 +517,7 @@ class Players extends Component {
                                     </ul>
                                 </td>
                                 <td >
-                                    <text className={"h5"}>{this.getTotalWinningsByID(player._id)} </text>
+                                    <p className={"h5"}>{this.getTotalWinningsByID(player._id)} </p>
                                     <br/>
                                     Won {player.deuces} time{player.deuces===1?"":"s"} with 2-7
                                 </td>
