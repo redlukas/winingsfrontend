@@ -292,8 +292,8 @@ class Players extends Component {
                             <th>Name</th>
                             {!this.state.gameIsRunning ? "" : <th>Rank</th>}
                             {!this.state.gameIsRunning ? "" : <th>2-7</th>}
-                            {!this.state.gameIsRunning ? "" : <th/>}
-                            {!this.state.gameIsRunning ? "" : <th/>}
+                            {!this.state.gameIsRunning ? "" : <th>IP:</th>}
+                            {!this.state.gameIsRunning ? "" : <th>{process.env.IP?process.env.IP:"No IP env variable set"}</th>}
                             {this.state.gameIsRunning ? "" :
                                 <th>
 
