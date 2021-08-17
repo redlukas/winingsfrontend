@@ -31,7 +31,7 @@ class Players extends Component {
             showWhoGetsWhat: false,
             showWhoPaysWho: false,
             showErrorScreen: false,
-            earnings: []
+            playersSortedByEarnings: []
         }
         this.handlePlayerFormChange = this.handlePlayerFormChange.bind(this);
         this.handlePlayerSubmit = this.handlePlayerSubmit.bind(this);
@@ -197,11 +197,14 @@ class Players extends Component {
     async handleCalculateEarnings() {
         const result = await endGame();
         await this.setStateFromMasterJson(result);
-        const {data: {players: earnings}} = await getEarnings();
-        earnings.sort((a, b) => {
+        const {data} = await getEarnings();
+        await this.setStateFromMasterJson(data)
+        let earnings = this.state.players;
+        await earnings.sort((a, b) => {
             return this.getTotalWinningsByID(b._id) - this.getTotalWinningsByID(a._id)
         })
-        this.setState({showWhoGetsWhat: true, showWhoPaysWho: false, earnings: earnings, showErrorScreen: false})
+        await this.setState({playersSortedByEarnings: earnings});
+        await this.setState({showWhoGetsWhat: true, showWhoPaysWho: false, showErrorScreen: false})
     }
 
     async handleWhoPaysWho() {
@@ -259,6 +262,7 @@ class Players extends Component {
                         total += pla.winnings[item];
                     }
                 }
+                console.log("they are "+total);
                 return total;
             }
         }
@@ -328,7 +332,7 @@ class Players extends Component {
                                         onClick={() => this.handleElimination(player._id)}
                                         disabled={!(player.rank === this.state.lastOut) && !player.isStillPlaying}
                                         className={player.isStillPlaying ? "btn btn-danger btn-sm" : "btn btn-success btn-sm"}>
-                                        {player.isStillPlaying ? "Eliminate" : "Uneliminate"}
+                                        {player.isStillPlaying ? "\u00a0 Eliminate \u00a0" : "Uneliminate"}
                                     </button>
                                 </td>
                                 <td style={{display:this.state.gameIsRunning ?"none":"table-cell"}}>
@@ -518,7 +522,7 @@ class Players extends Component {
                         </tr>
                         </thead>
                         <tbody>
-                        {this.state.earnings.map(player =>
+                        {this.state.playersSortedByEarnings.map(player =>
                             <tr key = {player._id}>
                                 <td className={"h5"}>{player.rank}</td>
                                 <td className={"h5"}>{player.name}</td>
