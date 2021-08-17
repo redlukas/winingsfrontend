@@ -1,14 +1,20 @@
 import http from "./httpService";
-import { apiUrl } from "../config.json";
+import { apiIP } from "../config.json";
 
-const apiEndpoint = apiUrl + "/players";
+function getApiEndpoint(){
+    let ip = apiIP;
+    if(ip==="$IP"){
+        ip="127.0.0.1";
+    }
+    return `http://${ip}:8888/api/players`;
+}
 
 function playerUrl(id) {
-    return `${apiEndpoint}/${id}`;
+    return `${getApiEndpoint()}/${id}`;
 }
 
 export function getPlayers() {
-    return http.get(apiEndpoint);
+    return http.get(getApiEndpoint());
 }
 
 export function getPlayer(playerID) {
@@ -16,15 +22,15 @@ export function getPlayer(playerID) {
 }
 
 export function createPlayer(playerName) {
-    return (http.post(apiEndpoint, {name: playerName}));
+    return (http.post(getApiEndpoint(), {name: playerName}));
 }
 
 export function togglePlayStatus(playerId) {
-    return http.get(apiEndpoint + "/togglePlaying/" + playerId);
+    return http.get(getApiEndpoint() + "/togglePlaying/" + playerId);
 }
 
 export function addDeuce(playerId){
-    return http.get(apiEndpoint + "/deuce/" + playerId)
+    return http.get(getApiEndpoint() + "/deuce/" + playerId)
 }
 
 export function deletePlayer(playerID){

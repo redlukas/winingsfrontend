@@ -3,7 +3,7 @@ import {addDeuce, createPlayer, deletePlayer, getPlayers, togglePlayStatus} from
 import {toast} from "react-toastify";
 import {Alert, Button, Container, Row, Col} from "react-bootstrap";
 import {
-    endGame, getEarnings, getEnvironmentVariables, getGame,
+    endGame, getEarnings, getGame,
     getWinnings,
     resetGame,
     resetWinnings,
@@ -292,8 +292,8 @@ class Players extends Component {
                             <th>Name</th>
                             {!this.state.gameIsRunning ? "" : <th>Rank</th>}
                             {!this.state.gameIsRunning ? "" : <th>2-7</th>}
-                            {!this.state.gameIsRunning ? "" : <th>IP:</th>}
-                            {!this.state.gameIsRunning ? "" : <th>{process.env.IP?process.env.IP:"No IP env variable set"}</th>}
+                            {!this.state.gameIsRunning ? "" : <th/>}
+                            {!this.state.gameIsRunning ? "" : <th/>}
                             {this.state.gameIsRunning ? "" :
                                 <th>
 

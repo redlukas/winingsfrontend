@@ -1,48 +1,52 @@
 import http from "./httpService";
-import { apiUrl } from "../config.json";
+import {apiIP} from "../config.json";
 
-const apiEndpoint = apiUrl + "/game";
-
-export function getEnvironmentVariables() {
-    console.log("Environment variables: ", process.env)
+function getApiEndpoint(){
+    let ip = apiIP;
+    if(ip==="$IP"){
+        ip="127.0.0.1";
+    }
+    return `http://${ip}:8888/api/game`;
 }
 
+
 export function startGame() {
-    return http.get(apiEndpoint+ "/start");
+    return http.get(getApiEndpoint()+ "/start");
 }
 
 export function resetGame() {
-    return http.get(apiEndpoint+ "/reset");
+    return http.get(getApiEndpoint()+ "/reset");
 }
 
 export function endGame() {
-    return http.get(apiEndpoint+ "/end");
+    return http.get(getApiEndpoint()+ "/end");
 }
 
 export function setBet(betAmount){
-    return http.post(apiEndpoint + "/bet", {bet:betAmount});
+    return http.post(getApiEndpoint() + "/bet", {bet:betAmount});
 }
 
 export function setWinning(rank, percentage){
-    return http.post(apiEndpoint + "/winnings", {rank:rank, percentage:percentage})
+    return http.post(getApiEndpoint() + "/winnings", {rank:rank, percentage:percentage})
 }
 
 export function resetWinnings(){
-    return http.get(apiEndpoint + "/winnings/reset")
+    return http.get(getApiEndpoint() + "/winnings/reset")
 }
 
 export function getWinnings(){
-    return http.get(apiEndpoint + "/winnings")
+    return http.get(getApiEndpoint() + "/winnings")
 }
 
 export function getEarnings(){
-    return http.get(apiEndpoint + "/earnings")
+    return http.get(getApiEndpoint() + "/earnings")
 }
 
 export function getGame(){
-    return http.get(apiEndpoint)
+    console.log("get game to ", getApiEndpoint());
+    return http.get(getApiEndpoint())
 }
 
 export function setDeuceEarnings(amount){
-    return http.post(apiEndpoint + "/deuceearnings", {amount: amount})
+    return http.post(getApiEndpoint() + "/deuceearnings", {amount: amount})
 }
