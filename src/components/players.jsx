@@ -31,7 +31,8 @@ class Players extends Component {
             showWhoGetsWhat: false,
             showWhoPaysWho: false,
             showErrorScreen: false,
-            playersSortedByEarnings: []
+            playersSortedByEarnings: [],
+            noOfEnterPresses: 0
         }
         this.handlePlayerFormChange = this.handlePlayerFormChange.bind(this);
         this.handlePlayerSubmit = this.handlePlayerSubmit.bind(this);
@@ -233,13 +234,12 @@ class Players extends Component {
         } else if(this.state.showPayoutRateScreen){
             if (event.key === "Enter"){
                 event.preventDefault();
-                /*
-                const winMatch = await this.checkWinningsTotal();
-                if(winMatch) {
-                    await this.handleWinningsSave()
+                await this.setState({noOfEnterPresses: this.state.noOfEnterPresses+1})
+                console.log("enter presses: ", this.state.noOfEnterPresses);
+                if(this.state.noOfEnterPresses>=3){
+                    toast.error("You must submit this form by pressing \"Save\"");
+                    await this.setState({noOfEnterPresses: 0})
                 }
-
-                 */
             }
         }
     }
