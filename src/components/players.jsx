@@ -453,7 +453,7 @@ class Players extends Component {
                         </Row>
 
                         {this.state.players.map(player =>
-                            <Row
+                            <Row key = {player._id}
                             >
                                 <Col
                                     className={"text-end p-3"}
@@ -503,13 +503,16 @@ class Players extends Component {
                         </thead>
                         <tbody>
                         {this.state.earnings.map(player =>
-                            <tr>
+                            <tr key = {player._id}>
                                 <td className={"h5"}>{player.rank}</td>
                                 <td className={"h5"}>{player.name}</td>
                                 <td>
                                     <ul>
                                         {Object.keys(player.winnings).map(keyName =>
-                                            <li style={{display: player._id === keyName ? "none" : "block"}}>
+                                            <li
+                                                key= {"fromplayer:"+keyName}
+                                                style={{display: player._id === keyName ? "none" : "block"}}
+                                            >
                                                 {"From "+this.getPlayerNameByID(keyName) + ": " + player.winnings[keyName]}
                                             </li>
 
