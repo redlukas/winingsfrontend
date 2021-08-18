@@ -202,7 +202,7 @@ class Players extends Component {
         await this.setStateFromMasterJson(data)
         let earnings = this.state.players;
         await earnings.sort((a, b) => {
-            return this.getTotalWinningsByID(b._id) - this.getTotalWinningsByID(a._id)
+            return this.getTotalWinningsByID(b.id) - this.getTotalWinningsByID(a.id)
         })
         await this.setState({playersSortedByEarnings: earnings});
         await this.setState({showWhoGetsWhat: true, showWhoPaysWho: false, showErrorScreen: false})
@@ -217,7 +217,7 @@ class Players extends Component {
     findPlayerPositionInPlayersArray(id) {
         const players = this.state.players;
         for (let i = 0; i < players.length; i++) {
-            if (players[i]._id === id) {
+            if (players[i].id === id) {
                 return i + 1;
             }
         }
@@ -235,7 +235,6 @@ class Players extends Component {
             if (event.key === "Enter"){
                 event.preventDefault();
                 await this.setState({noOfEnterPresses: this.state.noOfEnterPresses+1})
-                console.log("enter presses: ", this.state.noOfEnterPresses);
                 if(this.state.noOfEnterPresses>=3){
                     toast.error("You must submit this form by pressing \"Save\"");
                     await this.setState({noOfEnterPresses: 0})
@@ -246,7 +245,7 @@ class Players extends Component {
 
     getPlayerNameByID(id) {
         for (let pla of this.state.players) {
-            if (pla._id === id) {
+            if (pla.id === id) {
                 return pla.name
             }
         }
@@ -255,7 +254,7 @@ class Players extends Component {
 
     getTotalWinningsByID(id) {
         for (let pla of this.state.players) {
-            if (pla._id === id) {
+            if (pla.id === id) {
                 let total = 0;
                 for (let item of Object.keys(pla.winnings)) {
                     if(item!=="pot") {
@@ -310,7 +309,7 @@ class Players extends Component {
                         </thead>
                         <tbody>
                         {this.state.players.map(player =>
-                            <tr key={player._id ? player._id : 0}>
+                            <tr key={player.id ? player.id : 0}>
 
                                 <td>{player.name}</td>
                                 <td style={{display:this.state.gameIsRunning ?"table-cell":"none"}}>
@@ -321,7 +320,7 @@ class Players extends Component {
                                 </td>
                                 <td style={{display:this.state.gameIsRunning ?"table-cell":"none"}}>
                                     <button
-                                        onClick={() => this.handleDeuce(player._id)}
+                                        onClick={() => this.handleDeuce(player.id)}
                                         disabled={!player.isStillPlaying || this.state.lastOut === 2}
                                         className={"btn btn-sm btn-outline-info"}>
                                         2-7
@@ -329,7 +328,7 @@ class Players extends Component {
                                 </td>
                                 <td style={{display:this.state.gameIsRunning ?"table-cell":"none"}}>
                                     <button
-                                        onClick={() => this.handleElimination(player._id)}
+                                        onClick={() => this.handleElimination(player.id)}
                                         disabled={!(player.rank === this.state.lastOut) && !player.isStillPlaying}
                                         className={player.isStillPlaying ? "btn btn-danger btn-sm" : "btn btn-success btn-sm"}>
                                         {player.isStillPlaying ? "\u00a0 Eliminate \u00a0" : "Uneliminate"}
@@ -338,7 +337,7 @@ class Players extends Component {
                                 <td style={{display:this.state.gameIsRunning ?"none":"table-cell"}}>
                                     <button
                                         className={"btn btn-warning btn-sm float-end"}
-                                        onClick={() => this.deletePlayer(player._id)}
+                                        onClick={() => this.deletePlayer(player.id)}
                                     >
                                     x
                                     </button>
@@ -470,22 +469,22 @@ class Players extends Component {
                         </Row>
 
                         {this.state.players.map(player =>
-                            <Row key = {player._id}
+                            <Row key = {player.id}
                             >
                                 <Col
                                     className={"text-end p-3"}
                                 >
-                                    {this.findPlayerPositionInPlayersArray(player._id)}. Place
+                                    {this.findPlayerPositionInPlayersArray(player.id)}. Place
                                 </Col>
                                 <Col
                                 >
                                     <form
                                         className={"form-group m-2"}>
                                         <input
-                                            key={this.findPlayerPositionInPlayersArray(player._id)}
-                                            name={"rank" + this.findPlayerPositionInPlayersArray(player._id)}
+                                            key={this.findPlayerPositionInPlayersArray(player.id)}
+                                            name={"rank" + this.findPlayerPositionInPlayersArray(player.id)}
                                             className="form-control m-2"
-                                            id={this.findPlayerPositionInPlayersArray(player._id)}
+                                            id={this.findPlayerPositionInPlayersArray(player.id)}
                                             type="number"
                                             onChange={this.handleWinningsChange}
                                             onKeyPress={e => {
@@ -523,7 +522,7 @@ class Players extends Component {
                         </thead>
                         <tbody>
                         {this.state.playersSortedByEarnings.map(player =>
-                            <tr key = {player._id}>
+                            <tr key = {player.id}>
                                 <td className={"h5"}>{player.rank}</td>
                                 <td className={"h5"}>{player.name}</td>
                                 <td>
@@ -531,7 +530,7 @@ class Players extends Component {
                                         {Object.keys(player.winnings).map(keyName =>
                                             <li
                                                 key= {"fromplayer:"+keyName}
-                                                style={{display: player._id === keyName ? "none" : "block"}}
+                                                style={{display: player.id === keyName ? "none" : "block"}}
                                             >
                                                 {"From "+this.getPlayerNameByID(keyName) + ": " + player.winnings[keyName]}
                                             </li>
@@ -540,7 +539,7 @@ class Players extends Component {
                                     </ul>
                                 </td>
                                 <td >
-                                    <p className={"h5"}>{this.getTotalWinningsByID(player._id)} </p>
+                                    <p className={"h5"}>{this.getTotalWinningsByID(player.id)} </p>
                                     <br/>
                                     Won {player.deuces} time{player.deuces===1?"":"s"} with 2-7
                                 </td>
