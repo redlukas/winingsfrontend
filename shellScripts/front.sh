@@ -8,8 +8,8 @@
 sleep 6
 
 
-ip=$(grep apiIP '/home/winingsfrontend/src/components/config.json' | sed --expression='s/"apiIP" : "//g' | sed --expression='s/",//g')
-port=$(grep apiPort '/home/winingsfrontend/src/components/config.json' | sed --expression='s/"apiPort" : "//g' | sed --expression='s/"//g')
+ip=$(grep apiIP '/home/winingsfrontend/src/components/config.json' |  sed --expression='s/",//g' | sed --expression='s/apiIP: //g')
+port=$(grep apiPort '/home/winingsfrontend/src/components/config.json' | sed --expression='s/"//g' | sed --expression='s/apiPort : //g')
 changed=false
 
 echo ip read from config is: "${ip}"
