@@ -12,7 +12,7 @@ if [[ -z "${BACKEND_IP}" ]]; then
 else
   if grep -q ipgoeshere "/home/winingsfrontend/src/components/config.json"; then
     echo setting the IP to "${BACKEND_IP}"
-    sed -i s/ipgoeshere/"${BACKEND_IP}"/g /home/winingsfrontend/src/components/config.json
+    sudo -u root -H sh -c "sed -i s/ipgoeshere/${BACKEND_IP}/g /home/winingsfrontend/src/components/config.json"
     echo config file overwritten, it is now:
     cat /home/winingsfrontend/src/components/config.json
     cd /home/winingsfrontend
@@ -25,4 +25,4 @@ else
 fi
 
 echo starting frontend server
-serve -s /home/winingsfrontend/buildcd sh
+serve -s /home/winingsfrontend/build

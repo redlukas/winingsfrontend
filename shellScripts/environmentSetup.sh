@@ -31,3 +31,4 @@ cp /home/winingsfrontend/shellScripts/resetconfigfile.sh ~/resetconfigfile.sh
 chmod +x ~/resetconfigfile.sh
 chmod +x /home/winningscalculator/back.sh
 chmod +x /home/winingsfrontend/shellScripts/front.sh
+chmod +x /home/winingsfrontend/shellScripts/resetconfigfile.sh
