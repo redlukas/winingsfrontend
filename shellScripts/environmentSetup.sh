@@ -14,7 +14,7 @@ if grep -q winninsgcalculator "/usr/local/bin/docker-entrypoint.sh"
 then
   echo shell skripts already linked in entrypoint script
 else
-  sed -i s/'exec \"\$@\"'/'exec /bin/bash /home/winningscalculator/back.sh & \rn exec /bin/bash /home/winingsfrontend/shellScripts/front.sh & \rn  exec \"\$@\"'/g /usr/local/bin/docker-entrypoint.sh
+  sed -i s:"exec \"\$@\"":"exec /bin/bash /home/winningscalculator/back.sh \& \rexec /bin/bash /home/winingsfrontend/shellScripts/front.sh \&  \r\rexec \"\$@\":g /usr/local/bin/docker-entrypoint.sh
 fi
 
 
@@ -23,5 +23,5 @@ cp /home/winingsfrontend/shellScripts/resetconfigfile.sh ~/resetconfigfile.sh
 
 ##make the scripts executable
 chmod +x ~/resetconfigfile.sh
-chmod +x /home/winningscalculator/shellScripts/back.sh
+chmod +x /home/winningscalculator/back.sh
 chmod +x /home/winingsfrontend/shellScripts/front.sh
