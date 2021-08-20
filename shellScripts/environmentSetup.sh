@@ -10,7 +10,7 @@ else
 fi
 
 ##register the shell scripts in docker entrypoint
-if grep -q winninsgcalculator "/usr/local/bin/docker-entrypoint.sh"
+if grep -q winningscalculator "/usr/local/bin/docker-entrypoint.sh"
 then
   echo shell skripts already linked in entrypoint script
 else
@@ -18,7 +18,7 @@ else
   head -n -2 /usr/local/bin/docker-entrypoint.sh | cat > /usr/local/bin/docker-entrypoint.sh.temp
   cp /usr/local/bin/docker-entrypoint.sh.temp /usr/local/bin/docker-entrypoint.sh
   echo "exec /bin/bash /home/winningscalculator/back.sh &" >> /usr/local/bin/docker-entrypoint.sh
-  echo "exec /bin/bash /home/winningscalculator/shellScripts/front.sh &" >> /usr/local/bin/docker-entrypoint.sh
+  echo "exec /bin/bash /home/winingsfrontend/shellScripts/front.sh &" >> /usr/local/bin/docker-entrypoint.sh
   printf "\n" >> /usr/local/bin/docker-entrypoint.sh
   echo 'exec "$@"' >> /usr/local/bin/docker-entrypoint.sh
 fi
@@ -32,9 +32,11 @@ chmod +x ~/resetconfigfile.sh
 chmod +x /home/winningscalculator/back.sh
 chmod +x /home/winingsfrontend/shellScripts/front.sh
 chmod +x /home/winingsfrontend/shellScripts/resetconfigfile.sh
+chmod +x /home/winingsfrontend/shellScripts/gitpull.sh
 
 ##install the NPM dependencies of the projects
 cd /home/winingsfrontend
 npm install
 cd /home/winningscalculator
 npm install
+npm i -g serve
