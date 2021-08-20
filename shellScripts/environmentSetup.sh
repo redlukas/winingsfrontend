@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##install sudo
-apt install sudo nano node npm -y
+apt install sudo nano nodejs npm -y
 if grep -q mongodb "/etc/sudoers"
 then
   echo mongodb is already registered in sudoers file
