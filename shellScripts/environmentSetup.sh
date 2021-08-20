@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##install sudo
-apt install sudo nano -y
+apt install sudo nano node npm -y
 if grep -q mongodb "/etc/sudoers"
 then
   echo mongodb is already registered in sudoers file
@@ -32,3 +32,9 @@ chmod +x ~/resetconfigfile.sh
 chmod +x /home/winningscalculator/back.sh
 chmod +x /home/winingsfrontend/shellScripts/front.sh
 chmod +x /home/winingsfrontend/shellScripts/resetconfigfile.sh
+
+##install the NPM dependencies of the projects
+cd /home/winingsfrontend
+npm install
+cd /home/winningscalculator
+npm install
