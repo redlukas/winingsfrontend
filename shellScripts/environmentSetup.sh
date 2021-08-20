@@ -14,7 +14,11 @@ if grep -q winninsgcalculator "/usr/local/bin/docker-entrypoint.sh"
 then
   echo shell skripts already linked in entrypoint script
 else
-  sed -i s:"exec \"\$@\"":"exec /bin/bash /home/winningscalculator/back.sh \& \rexec /bin/bash /home/winingsfrontend/shellScripts/front.sh \&  \r\rexec \"\$@\":g /usr/local/bin/docker-entrypoint.sh
+  head -n -1 /usr/local/bin/docker-entrypoint.sh
+  echo "exec /bin/bash /home/winningscalculator/back.sh &" >> /usr/local/bin/docker-entrypoint.sh
+  echo "exec /bin/bash /home/winningscalculator/shellScripts/front.sh &" >> /usr/local/bin/docker-entrypoint.sh
+  printf "\n" >> /usr/local/bin/docker-entrypoint.sh
+  echo 'exec "$@"' >> /usr/local/bin/docker-entrypoint.sh
 fi
 
 
