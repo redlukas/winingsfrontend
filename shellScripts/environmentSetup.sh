@@ -14,7 +14,9 @@ if grep -q winninsgcalculator "/usr/local/bin/docker-entrypoint.sh"
 then
   echo shell skripts already linked in entrypoint script
 else
-  head -n -1 /usr/local/bin/docker-entrypoint.sh
+  touch /usr/local/bin/docker-entrypoint.sh.temp
+  head -n -2 /usr/local/bin/docker-entrypoint.sh | cat > /usr/local/bin/docker-entrypoint.sh.temp
+  cp /usr/local/bin/docker-entrypoint.sh.temp /usr/local/bin/docker-entrypoint.sh
   echo "exec /bin/bash /home/winningscalculator/back.sh &" >> /usr/local/bin/docker-entrypoint.sh
   echo "exec /bin/bash /home/winningscalculator/shellScripts/front.sh &" >> /usr/local/bin/docker-entrypoint.sh
   printf "\n" >> /usr/local/bin/docker-entrypoint.sh
