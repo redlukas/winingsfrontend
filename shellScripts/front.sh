@@ -24,8 +24,8 @@ else
       echo IP is already overwritten
     else
     echo setting the IP to "${BACKEND_IP}"
-    sudo -u root -H sh -c "sed -i s/${ip}/${BACKEND_IP}/g /home/winingsfrontend/src/components/config.json"
-    "$changed"=true
+    sudo -u root -H sh -c "sed -i 's/${ip}/${BACKEND_IP}/g' /home/winingsfrontend/src/components/config.json"
+    changed=true
     echo config file overwritten, it is now:
     cat /home/winingsfrontend/src/components/config.json
   fi
@@ -39,7 +39,7 @@ if [[ -z "${BACKEND_PORT}" ]]; then
     echo Port in build already set to 8888, doing nothing
   else
     echo defaulting to port 8888
-    sudo -u root -H sh -c "sed -i s/${port}/8888/g /home/winingsfrontend/src/components/config.json"
+    sudo -u root -H sh -c "sed -i 's/${port}/8888/g' /home/winingsfrontend/src/components/config.json"
     changed=true
     echo config file overwritten, it is now:
     cat /home/winingsfrontend/src/components/config.json
@@ -49,7 +49,7 @@ else
       echo Port is already overwritten
     else
     echo setting the Port to "${BACKEND_PORT}"
-    sudo -u root -H sh -c "sed -i s/${port}/${BACKEND_PORT}/g /home/winingsfrontend/src/components/config.json"
+    sudo -u root -H sh -c "sed -i 's/${port}/${BACKEND_PORT}/g' /home/winingsfrontend/src/components/config.json"
     changed=true
     echo config file overwritten, it is now:
     cat /home/winingsfrontend/src/components/config.json
