@@ -18,7 +18,7 @@ changed=false
 if [[ -z "${BACKEND_IP}" ]]; then
   echo BACKEND_IP is undefined
 else
-  if grep -q "$ip" "/home/winingsfrontend/src/components/config.json"; then
+  if grep -q '"apiIP": "'${BACKEND_IP}'",' "/home/winingsfrontend/src/components/config.json"; then
       echo IP is already overwritten
     else
     echo setting the IP to "${BACKEND_IP}"
@@ -43,8 +43,8 @@ if [[ -z "${BACKEND_PORT}" ]]; then
     cat /home/winingsfrontend/src/components/config.json
   fi
 else
-  if grep -q "$ip" "/home/winingsfrontend/src/components/config.json"; then
-      echo IP is already overwritten
+  if grep -q '"apiPort": "'${BACKEND_PORT}'"' "/home/winingsfrontend/src/components/config.json"; then
+      echo Port is already overwritten
     else
     echo setting the IP to "${BACKEND_PORT}"
     sudo -u root -H sh -c "sed -i s/${port}/${BACKEND_PORT}/g /home/winingsfrontend/src/components/config.json"
