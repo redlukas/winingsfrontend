@@ -9,8 +9,7 @@ git pull
 
 
 chmod +x /home/winningscalculator/back.sh
-chmod +x /home/winingsfrontend/shellScripts/front.sh
-chmod +x /home/winingsfrontend/shellScripts/resetconfigfile.sh
+chmod -R +x /home/winingsfrontend/shellScripts/
 
 ##install the NPM dependencies of the projects
 cd /home/winingsfrontend
