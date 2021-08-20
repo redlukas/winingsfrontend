@@ -7,11 +7,13 @@
 
 sleep 6
 
-grep apiIP
 
 ip=$(grep apiIP '/home/winingsfrontend/src/components/config.json' | sed --expression='s/"apiIP" : "//g' | sed --expression='s/",//g')
 port=$(grep apiPort '/home/winingsfrontend/src/components/config.json' | sed --expression='s/"apiPort" : "//g' | sed --expression='s/"//g')
 changed=false
+
+echo ip read from config is: "${ip}"
+echo port read from config is: "${port}"
 
 
 ##check if the IP variable is set, compare it to the one in the file and change if necessairy
@@ -38,7 +40,7 @@ if [[ -z "${BACKEND_PORT}" ]]; then
   else
     echo defaulting to port 8888
     sudo -u root -H sh -c "sed -i s/${port}/8888/g /home/winingsfrontend/src/components/config.json"
-    "$changed"=true
+    changed=true
     echo config file overwritten, it is now:
     cat /home/winingsfrontend/src/components/config.json
   fi
@@ -46,9 +48,9 @@ else
   if grep -q '"apiPort": "'${BACKEND_PORT}'"' "/home/winingsfrontend/src/components/config.json"; then
       echo Port is already overwritten
     else
-    echo setting the IP to "${BACKEND_PORT}"
+    echo setting the Port to "${BACKEND_PORT}"
     sudo -u root -H sh -c "sed -i s/${port}/${BACKEND_PORT}/g /home/winingsfrontend/src/components/config.json"
-    "$changed"=true
+    changed=true
     echo config file overwritten, it is now:
     cat /home/winingsfrontend/src/components/config.json
   fi
@@ -56,7 +58,7 @@ fi
 
 
 ##if we have made changes to the config file, we must rebuild the prod build
-if [ "$changed" = true ] ; then
+if [ "$changed" == true ] ; then
   cd /home/winingsfrontend
   echo re-building the production build of the frontend
   sudo -u root -H sh -c "npm run build"
