@@ -1,3 +1,4 @@
 {
-  "apiIP": "ipgoeshere"
+  "apiIP": "ipgoeshere",
+  "apiPort": "portgoeshere"
 }

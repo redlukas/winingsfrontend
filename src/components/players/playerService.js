@@ -1,12 +1,16 @@
 import http from "./httpService";
-import { apiIP } from "../config.json";
+import { apiIP, apiPort } from "../config.json";
 
 function getApiEndpoint(){
     let ip = apiIP;
+    let port = apiPort;
     if(ip==="ipgoeshere"){
         ip="127.0.0.1";
     }
-    return `http://${ip}:8888/api/players`;
+    if(port==="portgoeshere"){
+        port="8888";
+    }
+    return `http://${ip}:${port}/api/players`;
 }
 
 function playerUrl(id) {

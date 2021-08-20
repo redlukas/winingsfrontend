@@ -25,4 +25,4 @@ else
 fi
 
 echo starting frontend server
-serve -s /home/winingsfrontend/build
+serve -s /home/winingsfrontend/buildcd sh
