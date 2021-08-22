@@ -1,5 +1,7 @@
 #!/bin/bash
 
+##helper script to facilitate pulling the frontend and packend repos and installing the npm deps
+
 cd /home/winingsfrontend
 git reset --hard
 git pull

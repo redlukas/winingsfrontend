@@ -1,7 +1,9 @@
 #!/bin/bash
 
-##install sudo
-apt install sudo nano nodejs npm -y
+##This script helps you set up the whole environment if you you are starting with a fresh mongo docker image
+
+##install dependencies trough apt
+apt install sudo nano nodejs npm git -y
 if grep -q mongodb "/etc/sudoers"
 then
   echo mongodb is already registered in sudoers file

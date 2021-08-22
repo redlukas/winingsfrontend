@@ -1,8 +1,6 @@
 #!/bin/bash
 
-## install sudo via apt
-## add "mongodb ALL=(root) NOPASSWD: /usr/bin/sh" to /etc/sudoers
-##copy this file to /usr/local/bin/front.sh
+## this script is intended to be run every time the container starts up. it starts the server after checking what port this should happen on
 
 
 sleep 6
