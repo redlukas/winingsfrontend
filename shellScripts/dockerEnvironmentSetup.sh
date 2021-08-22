@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ##This script helps you set up the whole environment if you you are starting with a fresh mongo docker image
+##this script assumes you have freshly updated your apt repos, installed git and pulled the frontend and backend server repos into /home/
 
 ##install dependencies trough apt
 apt install sudo nano nodejs npm git -y
