@@ -10,7 +10,7 @@ function getApiEndpoint(){
     if(port==="portgoeshere"){
         port="8888";
     }
-    return `http://${ip}:${port}/api/players`;
+    return `http://${ip}:${port}/api/game`;
 }
 
 export function startGame() {
