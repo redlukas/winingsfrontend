@@ -12,29 +12,32 @@ apt install git nano nodejs npm mongodb -y
 systemctl enable mongodb
 systemctl start mongodb
 
+##set the backend port env variable
+export BACKEND_PORT=8888
 
 ##pull the repos
-cd /home/pi/
+cd /home/pi/ || exit
 git clone https://github.com/redlukas/winingsfrontend.git
 git clone https://github.com/redlukas/winningscalculator.git
 
 ##install the npm deps
-cd winningscalculator
+npm i -g pm2
+cd winningscalculator || exit
 npm i
-cd ../winingsfrontend
+cd ../winingsfrontend || exit
 npm i
 
 ##make the scripts executable
-chmod +x /home/pi/winningscalculator/back.sh
-chmod +x /home/pi/winingsfrontend/shellScripts/front.sh
 chmod +x /home/pi/winingsfrontend/shellScripts/resetconfigfile.sh
 chmod +x /home/pi/winingsfrontend/shellScripts/gitpull.sh
+chmod +x /home/pi/winingsfrontend/shellScripts/barebonaPi/rasPiStartup.sh
 
-##register the startup script with cron
-crontab -l > crontemp
-echo "@reboot /bin/bash /home/pi/winningscalculator/back.sh" >> crontemp
-echo "@reboot /bin/bash /home/pi/winingsfrontend/shellScripts/front.sh" >> crontemp
-crontab crontemp
-rm crontemp
+##run the startup script to set the Env variables
+/bin/bash /home/pi/winingsfrontend/shellScripts/barebonaPi/rasPiStartup.sh
+
+##register the startup script with pm2
+pm2 start /home/pi/winningscalculator/model.js
+pm2 serve /home/pi/winingsfrontend/build 5000
+pm2 save
 
 
