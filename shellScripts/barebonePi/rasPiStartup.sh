@@ -4,8 +4,8 @@ BACKEND_IP_READ="$(ifconfig | grep -A 1 'wlan0' | grep 'inet' | tr ' ' :| cut -f
 
 echo i read the backend ip as
 echo "$BACKEND_IP_READ"
-ip=$(grep apiIP '/home/pi/winingsfrontend/src/components/config.json' |  sed --expression='s/"//g' | sed --expression='s/apiIP: //g' | sed --expression='s/,//g')
-echo the frontend IP is set to
+ip=$(grep apiIP '/home/pi/winingsfrontend/src/components/config.json' |  sed --expression='s/"//g' | sed --expression='s/apiIP: //g' | sed --expression='s/,//g' | sed --expression='s/ //g')
+echo the current backend IP is set to
 echo "$ip"
 ##this script should be run in a 32bit raspbian install on startup
 ##it assumes the rasPiEnvironmentSetup has already run
