@@ -13,11 +13,12 @@ echo "$ip"
 
 ##check and register the IP
 if [[ "$ip" != "$BACKEND_IP_READ" ]];then
+  echo stopping frontend
   pm2 stop poker-frontend
-  sudo -u pi -H sh -c "sed -i 's/${ip}/${BACKEND_IP_READ}/g' /home/pi/winingsfrontend/src/components/config.json"
+  sudo -u root -H sh -c "sed -i 's/${ip}/${BACKEND_IP_READ}/g' /home/pi/winingsfrontend/src/components/config.json"
   cd /home/pi/winingsfrontend || exit
   echo re-building the production build of the frontend
-  sudo -u pi -H sh -c "npm run build"
+  sudo -u root -H sh -c "npm run build"
   echo build completed
   pm2 start poker-frontend
 else
