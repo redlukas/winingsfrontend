@@ -6,7 +6,7 @@
 sleep 6
 
 
-ip=$(grep apiIP '/home/winingsfrontend/src/components/config.json' |  sed --expression='s/",//g' | sed --expression='s/apiIP: //g')
+ip=$(grep apiIP '/home/winingsfrontend/src/components/config.json' |  sed --expression='s/",//g' | sed --expression='s/apiIP: //g'' | sed --expression='s/,//g')
 port=$(grep apiPort '/home/winingsfrontend/src/components/config.json' | sed --expression='s/"//g' | sed --expression='s/apiPort : //g')
 changed=false
 
