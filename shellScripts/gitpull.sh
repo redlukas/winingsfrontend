@@ -2,19 +2,19 @@
 
 ##helper script to facilitate pulling the frontend and packend repos and installing the npm deps
 
-cd /home/winingsfrontend
+cd ~/winingsfrontend || exit
 git reset --hard
 git pull
-cd /home/winningscalculator
+cd ~/winningscalculator || exit
 git reset --hard
 git pull
 
 
-chmod +x /home/winningscalculator/back.sh
-chmod -R +x /home/winingsfrontend/shellScripts/
+chmod +x ~/winningscalculator/back.sh
+chmod -R +x ~/winingsfrontend/shellScripts/
 
 ##install the NPM dependencies of the projects
-cd /home/winingsfrontend
+cd ~/winingsfrontend || exit
 npm install
-cd /home/winningscalculator
+cd ~/winningscalculator || exit
 npm install
