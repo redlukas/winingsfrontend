@@ -4,32 +4,26 @@ BACKEND_IP_READ="$(ifconfig | grep -A 1 'wlan0' | grep 'inet' | tr ' ' :| cut -f
 
 echo i read the backend ip as
 echo "$BACKEND_IP_READ"
+ip=$(grep apiIP '/home/pi/winingsfrontend/src/components/config.json' |  sed --expression='s/"//g' | sed --expression='s/apiIP: //g' | sed --expression='s/,//g')
+echo the frontend IP is set to
+echo "$ip"
 ##this script should be run in a 32bit raspbian install on startup
 ##it assumes the rasPiEnvironmentSetup has already run
 
-CHANGED=false
-##check and register the environment variables
-if [[ -z "${BACKEND_IP}" ]];then
-  export BACKEND_IP=$BACKEND_IP_READ
-  CHANGED=true
-  echo initial backend IP set
-else
-  if [[ "${BACKEND_IP}" != "$BACKEND_IP_READ" ]];then
-    export BACKEND_IP=$BACKEND_IP_READ
-    CHANGED=TRUE
-    echo IP has changed
-  else
-    echo IP has not changed
-  fi
-fi
 
-##if necessairy, rebuild the frontend prod build
-if [ "$CHANGED" == true ] ; then
+##check and register the IP
+if [[ "$ip" != "$BACKEND_IP_READ" ]];then
+  pm2 stop poker-frontend
+  sudo -u pi -H sh -c "sed -i 's/${ip}/${BACKEND_IP_READ}/g' /home/pi/winingsfrontend/src/components/config.json"
   cd /home/pi/winingsfrontend || exit
   echo re-building the production build of the frontend
-  npm run build
+  sudo -u pi -H sh -c "npm run build"
   echo build completed
+  pm2 start poker-frontend
+else
+  echo IP has not changed
 fi
+
 
 ##start the servers
 echo resurrecting the services

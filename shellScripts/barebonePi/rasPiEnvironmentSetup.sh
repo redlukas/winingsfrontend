@@ -33,11 +33,17 @@ chmod +x /home/pi/winingsfrontend/shellScripts/gitpull.sh
 chmod +x /home/pi/winingsfrontend/shellScripts/barebonaPi/rasPiStartup.sh
 
 ##run the startup script to set the Env variables
-/bin/bash /home/pi/winingsfrontend/shellScripts/barebonaPi/rasPiStartup.sh
+/bin/bash /home/pi/winingsfrontend/shellScripts/barebonePi/rasPiStartup.sh
 
-##register the startup script with pm2
-pm2 start /home/pi/winningscalculator/model.js
-pm2 serve /home/pi/winingsfrontend/build 5000
+##register the startup script with cron
+crontab -l > crontemp
+echo "@reboot /bin/bash /home/pi/winingsfrontend/shellScripts/barebonePi/rasPiStartup.sh" >> crontemp
+crontab crontemp
+rm crontemp
+
+
+pm2 start /home/pi/winningscalculator/model.js --name poker-backend
+pm2 serve /home/pi/winingsfrontend/build 5000 --name poker-frontend
 pm2 save
 
 
