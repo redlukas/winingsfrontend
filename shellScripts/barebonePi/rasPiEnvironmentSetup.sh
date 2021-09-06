@@ -17,8 +17,8 @@ export BACKEND_PORT=8888
 
 ##pull the repos
 cd /home/pi/ || exit
-git clone https://github.com/redlukas/winingsfrontend.git
-git clone https://github.com/redlukas/winningscalculator.git
+sudo -u pi -H sh -c "git clone https://github.com/redlukas/winingsfrontend.git"
+sudo -u pi -H sh -c "git clone https://github.com/redlukas/winningscalculator.git"
 
 ##install the npm deps
 npm i -g pm2
